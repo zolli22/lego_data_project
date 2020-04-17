@@ -1,0 +1,74 @@
+---
+title: "Ingrid's Draft Sheet"
+author: "Ingrid"
+date: "4/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r libraries}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(tidyr)
+```
+
+
+
+```{r}
+sets <- read_csv("sets.csv")
+View(sets)
+
+themes <- read_csv("themes.csv")
+View(themes)
+
+smallthemes <- themes %>%
+  select(id, name) %>%
+  rename("theme_id"=id)
+
+sets_themes <- sets %>%
+  filter(num_parts >= 40) %>%
+  left_join(smallthemes, by="theme_id") %>%
+  rename("set_name"=name.x, "theme_name"=name.y)
+
+year<-sets %>%
+  count(year)
+
+partnum_byyear <- sets %>%
+  group_by(year) %>%
+  summarise(avgparts = mean(num_parts)) %>%
+  left_join(year)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r, eval=FALSE}
+
+themesyear<- sets_themes %>%
+  count(year, theme_name) %>%
+  group_by(year) %>%
+  mutate(prop=n/sum(n)) %>%
+  arrange(desc(n), .by_group = TRUE) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  group_by(theme_name) %>%
+  count(theme_name)
+
+sets_themes %>%
+  count(theme_name)%>%
+  arrange(desc(n))
+
+starwarssets <- sets_themes %>%
+  filter(theme_name == "Star Wars")
+```
+
