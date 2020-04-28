@@ -24,7 +24,7 @@ library(tidyr)
 
 
 
-```{r}
+```{r, eval=FALSE}
 sets <- read_csv("sets.csv")
 View(sets)
 
@@ -49,6 +49,7 @@ partnum_byyear <- sets %>%
   left_join(year)
 
 
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
@@ -70,5 +71,113 @@ sets_themes %>%
 
 starwarssets <- sets_themes %>%
   filter(theme_name == "Star Wars")
+```
+
+10215-1
+Obi-Wan's Jedi Starfighter
+2010
+171
+676
+```{r, eval=FALSE}
+
+inventory_parts <- read_csv("inventory_parts.csv")
+parts <- read_csv("parts.csv")
+colors <- read_csv("colors (2).csv") %>%
+  rename("color_id"="id")
+
+inventories %>%
+  filter(set_num == "10215-1")
+
+obiwan <- inventory_parts %>%
+  filter(inventory_id == 2268) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num")
+
+```
+
+```{r, eval=FALSE}
+#devtools::install_github("ryantimpe/brickr")
+
+library(rayshader)
+library(rgl)
+
+#This is a brick
+brick <- data.frame(
+  Level="A",
+  X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
+  X2 = rep(3,4)
+)
+
+brick %>% 
+  bricks_from_table() %>% 
+  build_bricks()
+
+#Rotate the default view for a better snapshot
+rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 0.75*pi, 0, 0 ,1))
+
+my_first_model <- tibble::tribble(
+  ~Level, ~X1, ~X2, ~X3, ~x4, ~x5, ~X6, ~x7, ~x8,
+  "A", 1, 1, 1, 0, 1, 1, 1, 1,
+  "A", 1, 0, 0, 0, 0, 0, 0, 1,
+  "A", 1, 0, 0, 0, 0, 0, 0, 1,
+  "A", 1, 1, 1, 1, 1, 1, 1, 1,
+  "B", 1, 0, 1, 0, 1, 1, 0, 1,
+  "B", 1, 0, 0, 0, 0, 0, 0, 1,
+  "B", 1, 0, 0, 0, 0, 0, 0, 1,
+  "B", 1, 0, 1, 0, 0, 1, 0, 1,
+  "C", 1, 1, 1, 1, 1, 1, 1, 1,
+  "C", 1, 0, 0, 0, 0, 0, 0, 1,
+  "C", 1, 0, 0, 0, 0, 0, 0, 1,
+  "C", 1, 1, 1, 1, 1, 1, 1, 1,
+  "D", 2, 2, 2, 2, 2, 2, 2, 2,
+  "D", 1, 0, 0, 0, 0, 0, 0, 1,
+  "D", 1, 0, 0, 0, 0, 0, 0, 1,
+  "D", 2, 2, 2, 2, 2, 2, 2, 2,
+  "E", 0, 0, 0, 0, 0, 0, 0, 0,
+  "E", 2, 2, 2, 2, 2, 2, 2, 2,
+  "E", 2, 2, 2, 2, 2, 2, 2, 2,
+  "E", 0, 0, 0, 0, 0, 0, 0, 0
+)
+
+brick_colors <- tibble::tribble(
+  ~`.value`, ~Color,
+  1, "Bright blue",
+  2, "Dark orange"
+)
+  
+my_first_model %>% 
+  bricks_from_table(brick_colors) %>% 
+  build_bricks()
+
+
+#Rotate the default view for a better snapshot
+rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 1.1*pi, 0, 0 ,1))
+```
+
+```{r}
+library(brickr)
+library(rayshader)
+library(rgl)
+#This is a brick
+brick <- data.frame(
+Level="A",
+X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
+X2 = rep(3,4)
+)
+#Convert the dataframe to a list object that can be rendered
+brick_object <- brick %>%
+bricks_from_table()
+#Render it
+brick_object %>%
+build_bricks()
+open3d()
+
+
+#Combine the option rgl_lit=FALSE & outline_bricks=TRUE
+# This makes the rendering look like a drawing
+brick_object %>%
+build_bricks(outline_bricks = TRUE, rgl_lit = FALSE,
+background_color = "#99e7ff")
+rgl::clear3d()
 ```
 
