@@ -8,6 +8,8 @@ library(lubridate)
 # User interface
 ui <- fluidPage(
   titlePanel("Consumption by Country"),
+  tabsetPanel(
+    tabPanel("Consumption",
   sidebarLayout(
     sidebarPanel(
       selectizeInput(inputId = "country",
@@ -19,10 +21,22 @@ ui <- fluidPage(
                          choices = unique(food_consumption2$food_group),
                          selected = unique(food_consumption2$food_group))
       ),
-    mainPanel(plotOutput("graph")
-    )
-  )
-)
+    mainPanel(plotOutput("graph")))),
+  tabPanel("CO2", 
+           sidebarLayout(
+             sidebarPanel(
+               selectizeInput(inputId = "country",
+                              label = "Enter Countries here",
+                              choices = NULL,
+                              multiple = TRUE),
+               p("Put single space between the names."),
+               checkboxGroupInput("food_group", label = "Which Food Groups?", 
+                                  choices = unique(food_consumption2$food_group),
+                                  selected = unique(food_consumption2$food_group))
+             ),
+             mainPanel(plotOutput("graph2")))
+           )
+  ))
 
 # Server function
 server <- function(input, output, session){
@@ -47,9 +61,16 @@ server <- function(input, output, session){
       geom_col() + scale_fill_viridis_d(option = "inferno")
   })
   
-
+  output$graph2 <- renderPlot({
+    
+    food_consumption2reactive() %>%
+      ggplot(mapping = aes(x = country, y = co2_emmission, fill = food_group
+      )) + 
+      geom_col() + scale_fill_viridis_d(option = "inferno")
   
+  })
 }
+
 
 # Creates app
 shinyApp(ui = ui, server = server)

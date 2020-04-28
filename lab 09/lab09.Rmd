@@ -84,7 +84,7 @@ test <- test %>% pivot_wider(names_from = food_group, values_from = consumption)
 
 test <- test %>% pivot_longer(cols = c(total_consumption, Animal_Products, Meat, Plant_Products), 
                               names_to = "food_group", 
-                              values_to = "consumption") %>%
+                              values_to = "consumption")
  test <- test %>% filter(!is.na(consumption))
 
 
@@ -95,3 +95,4 @@ ggplot(food_consumption2, aes(x = country, y = consumption, fill = food_group))+
   geom_col()
 
 
+```
