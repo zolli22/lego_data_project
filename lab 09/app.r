@@ -11,6 +11,7 @@ library(shinythemes)
 ui <- fluidPage(
   titlePanel("Consumption by Country"),
   fluidPage(theme = shinytheme("lumen"),
+            
   sidebarLayout(
     sidebarPanel(
       selectizeInput(inputId = "country",
@@ -20,9 +21,14 @@ ui <- fluidPage(
       p("Put single space between the Countires"),
       checkboxGroupInput("food_group", label = "Which Food Groups?", 
                          choices = unique(food_consumption2$food_group),
-                         selected = unique(food_consumption2$food_group))
-      ),
-    mainPanel(
+                         selected = unique(food_consumption2$food_group)),
+      "Made by Isabelle Caldwell and Ingrid Zoll"),
+    mainPanel("Food consumption: Have you ever wondered what the food diets of other countries are comprised of? 
+      Well, look no further! With this web application, you can select countries and view how much meat, 
+      animal products, and plant products they consume per person per year. You can also view the CO2 emissions that are produced
+      from each type of food product for each country per person per year. The data used is from https://raw.githubusercontent.com/
+      rfordatascience/tidytuesday/master/data/
+      2020/2020-02-18/food_consumption.csv",
       tabsetPanel(type = "tabs",
                   tabPanel("Food Consumption", plotOutput("plot")),
                   tabPanel("Co2 Emissions", plotOutput("plot2")))
