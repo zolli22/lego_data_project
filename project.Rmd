@@ -7,9 +7,26 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r} 
+
 library(tidyverse)
+library(readr)
+library(brickr)
+
 
 
 
 ```
+
+
+
+```{r}
+
+sets <- read_csv("sets.csv")
+
+
+
+```
+
+
+

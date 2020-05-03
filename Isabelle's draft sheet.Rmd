@@ -1,0 +1,248 @@
+---
+title: "Isabelle's draft sheet"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+## libraries
+
+library(tidyverse)
+library(readr)
+library(brickr)
+library(rayshader)
+library(rgl)
+library(circlepackeR)
+library(tidyr)
+
+```
+
+
+
+
+```{r}
+## loading the data 
+
+sets <- read.csv("~/Math241/Iggy-Izzy/data/sets.csv")
+
+colors <- read.csv("~/Math241/Iggy-Izzy/data/colors (2).csv") 
+
+inventories <- read.csv("~/Math241/Iggy-Izzy/data/inventories.csv")
+
+parts_inventory <- read.csv("~/Math241/Iggy-Izzy/data/inventory_parts.csv")
+
+sets_inventory <- read.csv("~/Math241/Iggy-Izzy/data/inventory_sets.csv")
+
+minifigs <- read.csv("~/Math241/Iggy-Izzy/data/minifigs.csv")
+
+parts_categories <- read.csv("~/Math241/Iggy-Izzy/data/part_categories.csv")
+
+parts_relationships <- read.csv("~/Math241/Iggy-Izzy/data/part_relationships.csv")
+
+parts <- read.csv("~/Math241/Iggy-Izzy/data/parts.csv")
+
+themes <- read.csv("~/Math241/Iggy-Izzy/data/themes.csv")
+
+
+
+
+
+```
+
+
+```{r, eval= FALSE}
+
+## building mosaics 
+
+
+demo_img = tempfile() 
+download.file("http://ryantimpe.com/files/mf_unicorn.PNG", demo_img, mode="wb")
+
+mosaic1 <- png::readPNG("man.png") %>% 
+  image_to_mosaic(img_size = 36) #Length of each side of mosaic in "bricks"
+
+mosaic1 %>% build_mosaic()
+
+mosaic2 <- png::readPNG("manny.png") %>% 
+  image_to_mosaic(img_size = 36) #Length of each side of mosaic in "bricks"
+
+mosaic2 %>% build_mosaic()
+
+
+mosaic3 <- png::readPNG("holden.png") %>% 
+  image_to_mosaic(img_size = 36) #Length of each side of mosaic in "bricks"
+
+mosaic3 %>% build_mosaic()
+
+
+```
+
+```{r}
+## wranglin 
+
+
+smallthemes <- themes %>%
+  select(id, name) %>%
+  rename("theme_id"=id)
+
+## dataset containing sets, themes, and number of parts 
+
+sets_themes <- sets %>%
+  filter(num_parts >= 40) %>%
+  left_join(smallthemes, by="theme_id") %>%
+  rename("set_name"=name.x, "theme_name"=name.y)
+
+library(ggraph)
+
+#data_edge <- sets_themes$edges
+#data_edge$from <- gsub(".*\\.","",data_edge$from)
+#data_edge$to <- gsub(".*\\.","",data_edge$to)
+#head(data_edge)  
+
+#class(data.edge)
+
+
+library(data.tree)
+#data_tree <- FromDataFrameNetwork(data_edge)
+#data_nested <- ToDataFrameTree(data_tree, 
+#                            level1 = function(x) x$path[2],
+#                            level2 = function(x) x$path[3],
+#                            level3 = function(x) x$path[4],
+#                            level4 = function(x) x$path[5])[-1,-1]
+
+#data_nested <- na.omit(data_nested)
+
+
+
+
+```
+
+```{r}
+
+the_themes <- sets_themes %>%
+  count(theme_name) %>%
+  top_n(5)
+
+
+#trying to create a nested data frame using data.tree 
+
+library(treemap)
+library(ggraph)
+
+sets_themes$pathString <- paste("legos", 
+                            sets_themes$theme_name, 
+                            sets_themes$set_name, 
+                            sep = "/")
+
+sets_themes_5 <- left_join(the_themes,sets_themes, by="theme_name")
+
+
+
+legos <- as.Node(sets_themes_5) 
+print(legos, "year", "num_parts", limit = 10)
+
+library(DiagrammeR)
+
+plot(legos)
+
+plot(as.dendrogram(legos), center = TRUE)
+
+
+
+#plot with networkD3
+
+library(networkD3)
+
+legoslist <- ToListExplicit(legos, unname = TRUE)
+radialNetwork(legoslist)
+
+
+
+## trying to make a more legiable graph 
+
+top_set <- sets_themes %>% 
+  count(set_name) %>%
+  top_n(50)
+
+sets_themes_topsets <- left_join(top_set,sets_themes, by="set_name")
+
+
+legos2 <- as.Node(sets_themes_topsets) 
+print(legos2, "year", "num_parts", limit = 10)
+
+legoslist2 <- ToListExplicit(legos2, unname = TRUE)
+radialNetwork(legoslist2)
+
+
+plot(as.dendrogram(legos2, height = "year"))
+
+
+```
+
+
+```{r}
+#bubbles 
+
+library(scales)
+library(bubbles)
+library(RColorBrewer)
+
+lego_df <- ToDataFrameTable(legos2, 
+                             className = function(x) x$parent$name, 
+                             packageName = "set_name", "num_parts")
+
+bubbles(
+  lego_df$num_parts,
+  label = lego_df$packageName, 
+  substr(lego_df$packageName, 1, 2),
+  tooltip = lego_df$packageName,
+  color = col_factor(
+    brewer.pal(9,"Set1"),
+    factor(lego_df$className)
+  )(lego_df$className),
+  height = 800,
+  width = 800
+)
+
+```
+
+
+```{r, include = FALSE, eval = FALSE}
+# Circlepacker package
+library(circlepackeR)         
+# devtools::install_github("jeromefroe/circlepackeR") # If needed
+
+# Let's use the 'flare dataset' (stored in the ggraph library)
+library(ggraph)
+data_edge <- flare$edges
+data_edge2$from <- gsub(".*\\.","",data_edge$from)
+data_edge2$to <- gsub(".*\\.","",data_edge$to)
+head(data_edge2)   # This is an edge list
+
+# We need to convert it to a nested data frame. the data.tree library is our best friend for that:
+library(data.tree)
+data_tree <- FromDataFrameNetwork(data_edge2)
+data_nested <- ToDataFrameTree(data_tree, 
+                            level1 = function(x) x$path[2],
+                            level2 = function(x) x$path[3],
+                            level3 = function(x) x$path[4],
+                            level4 = function(x) x$path[5])[-1,-1]
+data_nested <- na.omit(data_nested)
+
+# Now we can plot it as seen before!
+data_nested$pathString <- paste("roots", data_nested$level1, data_nested$level2, data_nested$level3, data_nested$level4, sep = "/")
+data_nested$value=1
+data_Node <- as.Node(data_nested)
+p <- circlepackeR(data_Node, size = "value")
+#p 
+
+# save the widget
+# library(htmlwidgets)
+# saveWidget(p, file=paste0( getwd(), "/HtmlWidget/circular_packing_circlepackeR1.html"))
+
+
+```
