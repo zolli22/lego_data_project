@@ -181,3 +181,65 @@ background_color = "#99e7ff")
 rgl::clear3d()
 ```
 
+
+
+```{r}
+#CirclepackeR
+
+library(circlepackeR)
+library(data.tree)
+library(treemap)
+
+inventories %>%
+  filter(set_num == "41101-1")
+
+colors <- colors %>%
+  rename("color_id"="id")
+
+friends_hotel <- parts_inventory %>%
+  filter(inventory_id == 46550) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num")
+
+parts_categories <- parts_categories %>%
+  rename("part_cat_id"="id")
+
+millenium_falcon <- parts_inventory %>%
+  filter(inventory_id == 6409) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num") %>%
+  left_join(parts_categories, by="part_cat_id") %>%
+  rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
+millenium_falcon$pathString <- paste("mf", 
+                            millenium_falcon$color_name, 
+                            millenium_falcon$part_cat,
+                            millenium_falcon$part_name,
+                            millenium_falcon$quantity,
+                            sep = "/")
+
+MILF <- as.Node(millenium_falcon)
+
+#color, then part category
+m <- circlepackeR(MILF, size = "quantity", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+m
+
+#part category, then color
+milf2<-millenium_falcon %>%
+  filter(quantity <= 5)
+
+milf2$pathString <- paste("mf2", 
+                            millenium_falcon$part_cat, 
+                            millenium_falcon$color_name,
+                            millenium_falcon$part_name,
+                            millenium_falcon$quantity,
+                            sep = "/")
+
+milf2.0<- as.Node(milf2)
+
+n <- circlepackeR(milf2.0, size = "quantity", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+n
+```
+
