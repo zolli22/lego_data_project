@@ -18,6 +18,17 @@ library(rayshader)
 library(rgl)
 library(circlepackeR)
 library(tidyr)
+library(networkD3)
+library(ggraph)
+library(data.tree)
+library(treemap)
+library(DiagrammeR)
+library(scales)
+library(bubbles)
+library(RColorBrewer)
+
+
+
 
 ```
 
@@ -68,7 +79,8 @@ mosaic1 <- png::readPNG("man.png") %>%
 mosaic1 %>% build_mosaic()
 
 mosaic2 <- png::readPNG("manny.png") %>% 
-  image_to_mosaic(img_size = 36) #Length of each side of mosaic in "bricks"
+  image_to_mosaic(img_size = 36) 
+#Length of each side of mosaic in "bricks"
 
 mosaic2 %>% build_mosaic()
 
@@ -96,7 +108,6 @@ sets_themes <- sets %>%
   left_join(smallthemes, by="theme_id") %>%
   rename("set_name"=name.x, "theme_name"=name.y)
 
-library(ggraph)
 
 #data_edge <- sets_themes$edges
 #data_edge$from <- gsub(".*\\.","",data_edge$from)
@@ -106,7 +117,6 @@ library(ggraph)
 #class(data.edge)
 
 
-library(data.tree)
 #data_tree <- FromDataFrameNetwork(data_edge)
 #data_nested <- ToDataFrameTree(data_tree, 
 #                            level1 = function(x) x$path[2],
@@ -123,6 +133,7 @@ library(data.tree)
 
 ```{r}
 
+
 the_themes <- sets_themes %>%
   count(theme_name) %>%
   top_n(5)
@@ -130,12 +141,11 @@ the_themes <- sets_themes %>%
 
 #trying to create a nested data frame using data.tree 
 
-library(treemap)
-library(ggraph)
 
 sets_themes$pathString <- paste("legos", 
                             sets_themes$theme_name, 
                             sets_themes$set_name, 
+                            sets_themes$num_parts,
                             sep = "/")
 
 sets_themes_5 <- left_join(the_themes,sets_themes, by="theme_name")
@@ -145,7 +155,12 @@ sets_themes_5 <- left_join(the_themes,sets_themes, by="theme_name")
 legos <- as.Node(sets_themes_5) 
 print(legos, "year", "num_parts", limit = 10)
 
-library(DiagrammeR)
+```
+
+```{r}
+
+## trying to create dendrograms 
+## not working 
 
 plot(legos)
 
@@ -153,16 +168,15 @@ plot(as.dendrogram(legos), center = TRUE)
 
 
 
-#plot with networkD3
-
-library(networkD3)
+##plot with networkD3
+## radial network messy top 5 themes sooo many sets 
 
 legoslist <- ToListExplicit(legos, unname = TRUE)
 radialNetwork(legoslist)
 
 
 
-## trying to make a more legiable graph 
+## trying to make a more legiable radial network 
 
 top_set <- sets_themes %>% 
   count(set_name) %>%
@@ -181,15 +195,35 @@ radialNetwork(legoslist2)
 plot(as.dendrogram(legos2, height = "year"))
 
 
+## the best radial network 
+
+  # top 10 themes 
+top_themes <- sets_themes %>%
+  count(theme_name) %>% 
+  top_n(10)
+
+more_frigin_legos <- left_join(top_themes,sets_themes, by="theme_name")
+
+# top 10o largest sets by number of parts 
+
+more_frigin_legos <- more_frigin_legos %>%
+  top_n(100, num_parts)
+
+
+legos3 <- as.Node(more_frigin_legos) 
+print(legos3, "year", "num_parts", limit = 10)
+
+
+## within the top 10 themes these are the 100 sets with the most pieces. 
+legoslist3 <- ToListExplicit(legos3, unname = TRUE)
+radialNetwork(legoslist3)
+
 ```
 
 
 ```{r}
-#bubbles 
 
-library(scales)
-library(bubbles)
-library(RColorBrewer)
+#bubbles
 
 lego_df <- ToDataFrameTable(legos2, 
                              className = function(x) x$parent$name, 
@@ -204,8 +238,8 @@ bubbles(
     brewer.pal(9,"Set1"),
     factor(lego_df$className)
   )(lego_df$className),
-  height = 800,
-  width = 800
+  height = 1000,
+  width = 1000
 )
 
 ```
@@ -213,36 +247,28 @@ bubbles(
 
 ```{r, include = FALSE, eval = FALSE}
 # Circlepacker package
-library(circlepackeR)         
-# devtools::install_github("jeromefroe/circlepackeR") # If needed
 
-# Let's use the 'flare dataset' (stored in the ggraph library)
-library(ggraph)
-data_edge <- flare$edges
-data_edge2$from <- gsub(".*\\.","",data_edge$from)
-data_edge2$to <- gsub(".*\\.","",data_edge$to)
-head(data_edge2)   # This is an edge list
 
-# We need to convert it to a nested data frame. the data.tree library is our best friend for that:
-library(data.tree)
-data_tree <- FromDataFrameNetwork(data_edge2)
-data_nested <- ToDataFrameTree(data_tree, 
-                            level1 = function(x) x$path[2],
-                            level2 = function(x) x$path[3],
-                            level3 = function(x) x$path[4],
-                            level4 = function(x) x$path[5])[-1,-1]
-data_nested <- na.omit(data_nested)
+sets_themes$pathString <- paste("legos", 
+                            sets_themes$theme_name, 
+                            sets_themes$set_name, 
+                            sets_themes$num_parts,
+                            sep = "/")
 
-# Now we can plot it as seen before!
-data_nested$pathString <- paste("roots", data_nested$level1, data_nested$level2, data_nested$level3, data_nested$level4, sep = "/")
-data_nested$value=1
-data_Node <- as.Node(data_nested)
-p <- circlepackeR(data_Node, size = "value")
-#p 
 
-# save the widget
-# library(htmlwidgets)
-# saveWidget(p, file=paste0( getwd(), "/HtmlWidget/circular_packing_circlepackeR1.html"))
+sets_themes_5 <- left_join(the_themes,sets_themes, by="theme_name") %>% top_n(100, num_parts)
+
+legos <- as.Node(sets_themes_5)
+print(legos, "year", "num_parts", limit = 10)
+
+
+# Make the plot
+#circlepackeR(population, size = "value")
+
+# You can custom the minimum and maximum value of the color range.
+p <- circlepackeR(legos, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+p
 
 
 ```
