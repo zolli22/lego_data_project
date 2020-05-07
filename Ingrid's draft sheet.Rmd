@@ -25,34 +25,53 @@ library(tidyr)
 
 
 ```{r, eval=FALSE}
-sets <- read_csv("sets.csv")
-View(sets)
+sets <- read.csv("~/Math241/Iggy-Izzy/data/sets.csv")
 
-themes <- read_csv("themes.csv")
-View(themes)
+colors <- read.csv("~/Math241/Iggy-Izzy/data/colors (2).csv") 
 
-smallthemes <- themes %>%
-  select(id, name) %>%
-  rename("theme_id"=id)
+inventories <- read.csv("~/Math241/Iggy-Izzy/data/inventories.csv")
 
-sets_themes <- sets %>%
-  filter(num_parts >= 40) %>%
-  left_join(smallthemes, by="theme_id") %>%
-  rename("set_name"=name.x, "theme_name"=name.y)
+parts_inventory <- read.csv("~/Math241/Iggy-Izzy/data/inventory_parts.csv")
 
-year<-sets %>%
-  count(year)
+sets_inventory <- read.csv("~/Math241/Iggy-Izzy/data/inventory_sets.csv")
 
-partnum_byyear <- sets %>%
-  group_by(year) %>%
-  summarise(avgparts = mean(num_parts)) %>%
-  left_join(year)
+minifigs <- read.csv("~/Math241/Iggy-Izzy/data/minifigs.csv")
 
+parts_categories <- read.csv("~/Math241/Iggy-Izzy/data/part_categories.csv")
+
+parts_relationships <- read.csv("~/Math241/Iggy-Izzy/data/part_relationships.csv")
+
+parts <- read.csv("~/Math241/Iggy-Izzy/data/parts.csv")
+
+themes <- read.csv("~/Math241/Iggy-Izzy/data/themes.csv")
 
 
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+inventories <- rename(inventories, "inventory_id"="id")
+
+bigsets <- inventories %>%
+  left_join(sets, by="set_num") %>%
+  left_join(parts_inventory, by="inventory_id") %>%
+  left_join(colors, by="color_id") %>%
+  rename("set_name"="name.x", "color_name"="name.y")
+
+colorsyear<- bigsets %>%
+  select(5, 10, 12) %>%
+  group_by(year) %>%
+  count(year, color_name)
+
+colorsyear<-colorsyear %>%
+  pivot_wider(names_from=year, values_from=n)
+
+colorsyear %>% mutate_all(funs(replace_na(0)))
+
+```
+
+
 ```{r, eval=FALSE}
 
 themesyear<- sets_themes %>%
