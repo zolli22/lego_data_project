@@ -1,0 +1,120 @@
+---
+title: "blogblogblog"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r libraries, message=FALSE}
+library(tidyverse)
+library(jpeg)
+library(readxl)
+library(here)
+library(brickr)
+library(rayshader)
+library(rgl)
+library(circlepackeR)
+library(data.tree)
+library(treemap)
+
+rgl::setupKnitr()
+```
+
+```{r datasets, echo=FALSE}
+sets <- read.csv(here("data/sets.csv"))
+
+colors <- read.csv(here("data/colors (2).csv"))
+
+inventories <- read.csv(here("data/inventories.csv"))
+
+parts_inventory <- read.csv(here("data/inventory_parts.csv"))
+
+sets_inventory <- read.csv(here("data/inventory_sets.csv"))
+
+minifigs <- read.csv(here("data/minifigs.csv"))
+
+parts_categories <- read.csv(here("data/part_categories.csv"))
+
+parts_relationships <- read.csv(here("data/part_relationships.csv"))
+
+parts <- read.csv(here("data/parts.csv"))
+
+themes <- read.csv(here("data/themes.csv"))
+```
+
+```{r renaming variables}
+colors <- rename(colors, "color_id"="id")
+
+parts_categories <- rename(parts_categories, "part_cat_id"="id")
+```
+
+```{r hello kelly, rgl=TRUE, dev='png', warning=FALSE, message=FALSE, echo=FALSE, fig.align='center'}
+#hello kelly
+
+read_xlsx("~/Iggy-Izzy/data/brickr_pattern.xlsx", sheet = "hi") %>% 
+  bricks_from_excel() %>% 
+  build_bricks(rgl_lit = FALSE, outline_bricks = TRUE,
+               background_color =  "#99e7ff")
+
+par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
+
+par3d(windowRect = c(20, 30, 900, 800))
+```
+
+```{r izzy-iggy, rgl=TRUE, dev='png', echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+#izzy-iggy
+
+read_xlsx("~/Iggy-Izzy/data/brickr_pattern.xlsx", sheet = "izzy-iggy") %>% 
+  bricks_from_excel() %>% 
+  build_bricks(rgl_lit = FALSE, outline_bricks = TRUE,
+               background_color =  "#99e7ff")
+
+par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
+
+par3d(windowRect = c(20, 30, 900, 800))
+```
+
+```{r, rgl=TRUE, dev='png', echo=TRUE, warning=FALSE, message=FALSE, fig.align='center'}
+#a cute little house!
+
+read_xlsx("~/Iggy-Izzy/data/brickr_pattern.xlsx", sheet = "mybrickr") %>% 
+  bricks_from_excel() %>% 
+  build_bricks(rgl_lit = FALSE, outline_bricks = TRUE,
+               background_color =  "#99e7ff")
+
+par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
+
+par3d(windowRect = c(20, 30, 900, 800))
+```
+
+```{r milf circlepackR}
+#USC Millennium Falcon, 7541 parts, released 2017
+#set num = 75192-1
+
+inventories %>%
+  filter(set_num == "75192-1")
+
+millenium_falcon <- parts_inventory %>%
+  filter(inventory_id == 19670) %>% #inventory ID gotten from previous step
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num") %>%
+  left_join(parts_categories, by="part_cat_id") %>%
+  rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
+millenium_falcon$pathString <- paste("mf", 
+                            millenium_falcon$color_name, 
+                            millenium_falcon$part_cat,
+                            millenium_falcon$part_name,
+                            millenium_falcon$quantity,
+                            sep = "/")
+
+MILF <- as.Node(millenium_falcon)
+
+#color, then part category, then part name, then part quantity
+m <- circlepackeR(MILF, size = "quantity", width = 1000, height = 800)
+
+m
+```
