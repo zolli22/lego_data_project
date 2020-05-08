@@ -1,0 +1,334 @@
+---
+title: "Ingrid's Draft Sheet"
+author: "Ingrid"
+date: "4/15/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r libraries}
+library(tidyverse)
+library(readr)
+library(dplyr)
+library(tidyr)
+```
+
+
+
+```{r}
+sets <- read.csv("~/Iggy-Izzy/data/sets.csv")
+
+colors <- read.csv("~/Iggy-Izzy/data/colors (2).csv") 
+
+inventories <- read.csv("~/Iggy-Izzy/data/inventories.csv")
+
+parts_inventory <- read.csv("~/Iggy-Izzy/data/inventory_parts.csv")
+
+sets_inventory <- read.csv("~/Iggy-Izzy/data/inventory_sets.csv")
+
+minifigs <- read.csv("~/Iggy-Izzy/data/minifigs.csv")
+
+parts_categories <- read.csv("~/Iggy-Izzy/data/part_categories.csv")
+
+parts_relationships <- read.csv("~/Iggy-Izzy/data/part_relationships.csv")
+
+parts <- read.csv("~/Iggy-Izzy/data/parts.csv")
+
+themes <- read.csv("~/Iggy-Izzy/data/themes.csv")
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r, eval=FALSE, include=FALSE}
+inventories <- rename(inventories, "inventory_id"="id")
+
+bigsets <- inventories %>%
+  left_join(sets, by="set_num") %>%
+  left_join(parts_inventory, by="inventory_id") %>%
+  left_join(colors, by="color_id") %>%
+  rename("set_name"="name.x", "color_name"="name.y")
+
+colorsyear<- bigsets %>%
+  select(5, 10, 12) %>%
+  group_by(year) %>%
+  count(year, color_name)
+
+colorsyear<-colorsyear %>%
+  pivot_wider(names_from=year, values_from=n)
+
+colorsyear %>% mutate_all(funs(replace_na(0)))
+
+```
+
+
+```{r, eval=FALSE}
+
+themesyear<- sets_themes %>%
+  count(year, theme_name) %>%
+  group_by(year) %>%
+  mutate(prop=n/sum(n)) %>%
+  arrange(desc(n), .by_group = TRUE) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  group_by(theme_name) %>%
+  count(theme_name)
+
+sets_themes %>%
+  count(theme_name)%>%
+  arrange(desc(n))
+
+starwarssets <- sets_themes %>%
+  filter(theme_name == "Star Wars")
+```
+
+10215-1
+Obi-Wan's Jedi Starfighter
+2010
+171
+676
+```{r, eval=FALSE}
+
+inventory_parts <- read_csv("inventory_parts.csv")
+parts <- read_csv("parts.csv")
+colors <- read_csv("colors (2).csv") %>%
+  rename("color_id"="id")
+
+inventories %>%
+  filter(set_num == "10215-1")
+
+obiwan <- inventory_parts %>%
+  filter(inventory_id == 2268) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num")
+
+```
+
+```{r, eval=FALSE}
+#devtools::install_github("ryantimpe/brickr")
+
+library(rayshader)
+library(rgl)
+
+#This is a brick
+brick <- data.frame(
+  Level="A",
+  X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
+  X2 = rep(3,4)
+)
+
+brick %>% 
+  bricks_from_table() %>% 
+  build_bricks()
+
+#Rotate the default view for a better snapshot
+rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 0.75*pi, 0, 0 ,1))
+
+my_first_model <- tibble::tribble(
+  ~Level, ~X1, ~X2, ~X3, ~x4, ~x5, ~X6, ~x7, ~x8,
+  "A", 1, 1, 1, 0, 1, 1, 1, 1,
+  "A", 1, 0, 0, 0, 0, 0, 0, 1,
+  "A", 1, 0, 0, 0, 0, 0, 0, 1,
+  "A", 1, 1, 1, 1, 1, 1, 1, 1,
+  "B", 1, 0, 1, 0, 1, 1, 0, 1,
+  "B", 1, 0, 0, 0, 0, 0, 0, 1,
+  "B", 1, 0, 0, 0, 0, 0, 0, 1,
+  "B", 1, 0, 1, 0, 0, 1, 0, 1,
+  "C", 1, 1, 1, 1, 1, 1, 1, 1,
+  "C", 1, 0, 0, 0, 0, 0, 0, 1,
+  "C", 1, 0, 0, 0, 0, 0, 0, 1,
+  "C", 1, 1, 1, 1, 1, 1, 1, 1,
+  "D", 2, 2, 2, 2, 2, 2, 2, 2,
+  "D", 1, 0, 0, 0, 0, 0, 0, 1,
+  "D", 1, 0, 0, 0, 0, 0, 0, 1,
+  "D", 2, 2, 2, 2, 2, 2, 2, 2,
+  "E", 0, 0, 0, 0, 0, 0, 0, 0,
+  "E", 2, 2, 2, 2, 2, 2, 2, 2,
+  "E", 2, 2, 2, 2, 2, 2, 2, 2,
+  "E", 0, 0, 0, 0, 0, 0, 0, 0
+)
+
+brick_colors <- tibble::tribble(
+  ~`.value`, ~Color,
+  1, "Bright blue",
+  2, "Dark orange"
+)
+  
+my_first_model %>% 
+  bricks_from_table(brick_colors) %>% 
+  build_bricks()
+
+
+#Rotate the default view for a better snapshot
+rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 1.1*pi, 0, 0 ,1))
+```
+
+```{r, include=FALSE, eval=FALSE}
+library(brickr)
+library(rayshader)
+library(rgl)
+#This is a brick
+brick <- data.frame(
+Level="A",
+X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
+X2 = rep(3,4)
+)
+#Convert the dataframe to a list object that can be rendered
+brick_object <- brick %>%
+bricks_from_table()
+#Render it
+brick_object %>%
+build_bricks()
+open3d()
+
+
+#Combine the option rgl_lit=FALSE & outline_bricks=TRUE
+# This makes the rendering look like a drawing
+brick_object %>%
+build_bricks(outline_bricks = TRUE, rgl_lit = FALSE,
+background_color = "#99e7ff")
+rgl::clear3d()
+```
+
+
+
+```{r, eval=FALSE, include=FALSE}
+#CirclepackeR
+
+library(circlepackeR)
+library(data.tree)
+library(treemap)
+
+#inventories %>%
+  #filter(set_num == "41101-1")
+
+colors <- colors %>%
+  rename("color_id"="id")
+
+friends_hotel <- parts_inventory %>%
+  filter(inventory_id == 46550) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num")
+
+parts_categories <- parts_categories %>%
+  rename("part_cat_id"="id")
+
+millenium_falcon <- parts_inventory %>%
+  filter(inventory_id == 6409) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num") %>%
+  left_join(parts_categories, by="part_cat_id") %>%
+  rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
+millenium_falcon$pathString <- paste("mf", 
+                            millenium_falcon$color_name, 
+                            millenium_falcon$part_cat,
+                            millenium_falcon$part_name,
+                            millenium_falcon$quantity,
+                            sep = "/")
+
+MILF <- as.Node(millenium_falcon)
+
+#color, then part category
+m <- circlepackeR(MILF, size = "quantity", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+m
+
+#part category, then color
+milf2<-millenium_falcon %>%
+  filter(quantity <= 5)
+
+milf2$pathString <- paste("mf2", 
+                            millenium_falcon$part_cat, 
+                            millenium_falcon$color_name,
+                            millenium_falcon$part_name,
+                            millenium_falcon$quantity,
+                            sep = "/")
+
+milf2.0<- as.Node(milf2)
+
+n <- circlepackeR(milf2.0, size = "quantity", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+n
+```
+
+```{r}
+#inventories %>%
+  #filter(set_num == "41075-1")
+
+library(dplyr)
+library(circlepackeR)
+library(data.tree)
+library(treemap)
+
+colors <- colors %>%
+  rename("color_id"="id")
+
+parts_categories <- parts_categories %>%
+  rename("part_cat_id"="id")
+
+treehouse <- parts_inventory %>%
+  filter(inventory_id == 37728) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num") %>%
+  left_join(parts_categories, by="part_cat_id") %>%
+  rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
+treehouse$pathString <- paste("mf", 
+                            treehouse$color_name, 
+                            treehouse$part_cat,
+                            treehouse$part_name,
+                            treehouse$quantity,
+                            sep = "/")
+
+TREE <- as.Node(treehouse)
+
+#37728
+#22770
+#color, then part category
+tree <- circlepackeR(TREE, size = "quantity",  width = 1000, height = 800)
+
+tree
+
+#color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)",
+
+
+friends_hotel <- parts_inventory %>%
+  filter(inventory_id == 46550) %>%
+  left_join(colors, by="color_id") %>%
+  left_join(parts, by="part_num") %>%
+  left_join(parts_categories, by="part_cat_id") %>%
+  rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
+friends_hotel$pathString <- paste("h", 
+                            friends_hotel$color_name, 
+                            friends_hotel$part_cat,
+                            friends_hotel$part_name,
+                            friends_hotel$quantity,
+                            sep = "/")
+
+hotel <- as.Node(friends_hotel)
+
+#37728
+#22770
+#color, then part category
+h <- circlepackeR(hotel, size = "quantity",  width = 1000, height = 800)
+
+h
+```
+
+```{r}
+LOTR <- sets %>%
+  filter(theme_id == 566)
+```
+
