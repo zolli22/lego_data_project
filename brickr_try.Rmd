@@ -1,54 +1,29 @@
 ---
-title: "R Notebook"
-output:
-  pdf_document: default
-  html_document:
-    df_print: paged
+title: "brickr"
+output: html_document
 ---
 
-```{r}
-demo_img = tempfile() 
-download.file("http://www.pngmart.com/files/11/Baby-Yoda-Transparent-Images-PNG.png", demo_img, mode="wb")
-
-
-mosaic1 <- png::readPNG(demo_img) %>% 
-  image_to_mosaic(img_size=c(40, 60), color_palette = c('universal', 'generic')) #Length of each side of mosaic in "bricks"
-
-#Plot 2D mosaic
-mosaic1 %>% build_mosaic()
-
-
-
-
-c("cie94", "cie2000", "euclidean", "cmc") %>% 
-  purrr::map(~png::readPNG(demo_img) %>% 
-  image_to_mosaic(img_size=c(40, 0), method =.x) %>% 
-  build_mosaic(title = .x )) -> mosaics_by_method
-
-gridExtra::grid.arrange(grobs = mosaics_by_method, layout_matrix =rbind(c(1,2),c(3,4)))
-
-
-
-png::readPNG(demo_img) %>% 
-  image_to_mosaic(32) %>% 
-  bricks_from_mosaic(highest_el = "dark") %>% 
-  build_bricks(outline_bricks = TRUE, rgl_lit = FALSE)
-
-#From dput(round(rgl::par3d("userMatrix"),1)) after manual rotation
-custom_rotation <- structure(c(0.9, 0.3, -0.3, 0, -0.3, 0.9, -0.3, 
-                               0, 0.2, 0.4, 0.9, 0, 0, 0, 0, 1), .Dim = c(4L, 4L))
-
-rgl::par3d(userMatrix = rgl::rotate3d(custom_rotation, 0, 0, pi/4 ,1))
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## R Markdown
 
-```{r echo=TRUE}
-options(rgl.useNULL = TRUE)
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+#options(rgl.useNULL = TRUE)
 library(brickr)
 library(tidyverse)
 library(rgl)
+library(rayshader)
+```
 
+## One brick
+
+```{r}
 #This is a brick
 brick <- data.frame(
   Level="A",
@@ -56,203 +31,24 @@ brick <- data.frame(
   X2 = rep(3,4)
 )
 
-brick
-
 brick %>% 
   bricks_from_table() %>% 
   build_bricks()
 
 #Rotate the default view for a better snapshot
-par3d(userMatrix = rotate3d(par3d("userMatrix"), 0.75*pi, 0, 0 ,1))
-```
-
-
-```{r}
-my_first_model <- tibble::tribble(
-  ~Level, ~X1, ~X2, ~X3, ~x4, ~x5, ~X6, ~x7, ~x8,
-  "A", 1, 1, 1, 0, 1, 1, 1, 1,
-  "A", 1, 0, 0, 0, 0, 0, 0, 1,
-  "A", 1, 0, 0, 0, 0, 0, 0, 1,
-  "A", 1, 1, 1, 1, 1, 1, 1, 1,
-  "B", 1, 0, 1, 0, 1, 1, 0, 1,
-  "B", 1, 0, 0, 0, 0, 0, 0, 1,
-  "B", 1, 0, 0, 0, 0, 0, 0, 1,
-  "B", 1, 0, 1, 0, 0, 1, 0, 1,
-  "C", 1, 1, 1, 1, 1, 1, 1, 1,
-  "C", 1, 0, 0, 0, 0, 0, 0, 1,
-  "C", 1, 0, 0, 0, 0, 0, 0, 1,
-  "C", 1, 1, 1, 1, 1, 1, 1, 1,
-  "D", 2, 2, 2, 2, 2, 2, 2, 2,
-  "D", 1, 0, 0, 0, 0, 0, 0, 1,
-  "D", 1, 0, 0, 0, 0, 0, 0, 1,
-  "D", 2, 2, 2, 2, 2, 2, 2, 2,
-  "E", 0, 0, 0, 0, 0, 0, 0, 0,
-  "E", 2, 2, 2, 2, 2, 2, 2, 2,
-  "E", 2, 2, 2, 2, 2, 2, 2, 2,
-  "E", 0, 0, 0, 0, 0, 0, 0, 0
-)
-
-brick_colors <- tibble::tribble(
-  ~`.value`, ~Color,
-  1, "Bright blue",
-  2, "Dark orange"
-)
-  
-my_first_model %>% 
-  bricks_from_table(brick_colors) %>% 
-  build_bricks()
-
-#Rotate the default view for a better snapshot
-rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 1.1*pi, 0, 0 ,1))
-```
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(rgl)
-knitr::knit_hooks$set(webgl = hook_webgl)
-```
-
-```{r eval=FALSE, webgl=TRUE}
-with(iris, plot3d(Sepal.Length, Sepal.Width, Petal.Length, 
-                  type="s", col=as.numeric(Species)))
-
-```
-
-
-```{r, eval=FALSE}
-library(dplyr)
-library(brickr)
-library(rgl)
-library(httr)
-
-#Render a static  model
-GET("http://www.ryantimpe.com/files/babyyoda.xlsx", write_disk(tf <- tempfile(fileext = ".xlsx")))
-babyyoda <- readxl::read_xlsx(tf, sheet = "BabyYoda") %>% 
-  bricks_from_excel() 
-
-babyyoda %>% 
-  build_bricks(rgl_lit = F, outline_bricks = T, background_color = "#8a496b")
-
-#Set up window parameters
-U <- par3d("userMatrix")
-U <- round(U)
-
-par3d(windowRect = c(20, 30, 800, 600), zoom = .8)
-
-#Set up animation
-num_frames <- 480
-
-max_phi <- pi/4
-phivec = c(rep(pi/16, 240), 
-           seq(pi/16, max_phi, length.out = 60), 
-           rep(max_phi, 60), 
-           seq(max_phi, pi/16, length.out = 60), 
-           rep(pi/16, 60))
-
-thetavec = c(rep(0, 120), 
-             rev(seq(0, 2*pi, length.out = 300)), 
-             rep(0, 60))
-
-zoomvec = c(rep(0.8, 240), 
-            seq(0.8, 1, length.out = 60),
-            rev(seq(0.8, 1, length.out = 60)),
-            rep(0.8, 120))
-
-rglvec = rep(c(rep(101, 20), rep(102, 20), rep(103, 20)), 8)
-
-
-#Animation ----
-#Loop over 3 different force waves
-for(rr in 101:103){
-  readxl::read_xlsx(tf, sheet = "BabyYoda") %>% 
-    mutate_at(vars(user_color), list(~ifelse(.==101, rr, .))) %>% 
-    bricks_from_excel() %>% 
-    build_bricks(rgl_lit = F, outline_bricks = T, background_color = "#8a496b")
-  
-  par3d(windowRect = c(20, 30, 800, 600), zoom = .8)
-  
-  #Loop over window parameters
-  for(ii in 1:num_frames){
-
-    if(rglvec[ii] == rr){
-      # par3d(userMatrix = rotate3d(U, thetas[ii], 0, 0 ,1)) # Rotate about model's z axis
-      
-      par3d(userMatrix = rotationMatrix(phivec[ii], 1,0,0) %*% rotate3d(U, thetavec[ii], 0, 0 ,1),
-            zoom = zoomvec[ii]) # Rotate aboutviewer's z axis
-      
-      Sys.sleep(0.1)
-      rayshader::render_snapshot(paste0("rrgl/yoda", stringr::str_pad(ii, width=3, pad="0"), ".png"))
-    } else {next}
-    
-  }
-  rgl::rgl.clear()
-  
-}
-
-
-av::av_encode_video(paste0("rrgl/", list.files("rrgl/")), 
-                    "babyyoda.mp4", framerate = 30)
-
-#Instructions
-p <- babyyoda %>% 
-  build_instructions()
-
-p +
-  ggplot2::theme(panel.grid = element_blank())
-
-ggplot2::ggsave("babyyoda_instructions.png", device="png", width = 6, height = 6)
-
-#Bricks
-babyyoda %>% 
-  build_pieces()
-
-ggplot2::ggsave("babyyoda_pieces.png", device="png", width = 8, height = 4)
+rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 0.75*pi, 0, 0 ,1))
 ```
 
 ```{r}
-tree_or_mushroom <- tibble::tribble(
-  ~Level, ~X1, ~X2, ~X3, ~X4, ~X5, ~X6,
-  "A", 1, 1, 1, 1, 1, 1, 
-  "A", 1, 1, 1, 1, 1, 1, 
-  "A", 1, 1, 1, 1, 1, 1, 
-  "A", 1, 1, 1, 1, 1, 1, 
-  "B", 0, 0, 0, 0, 0, 0, 
-  "B", 0, 0, 2, 2, 0, 0,
-  "B", 0, 0, 2, 2, 0, 0, 
-  "B", 0, 0, 0, 0, 0, 0, 
-  "C", 0, 0, 0, 0, 0, 0, 
-  "C", 0, 0, 2, 2, 0, 0,
-  "C", 0, 0, 2, 2, 0, 0, 
-  "C", 0, 0, 0, 0, 0, 0, 
-  "D", 0, 3, 3, 3, 3, 0, 
-  "D", 0, 3, 3, 3, 3, 0,
-  "D", 0, 3, 3, 3, 3, 0, 
-  "D", 0, 3, 3, 3, 3, 0,
-  "E", 0, 0, 3, 3, 0, 0, 
-  "E", 0, 3, 3, 3, 3, 0,
-  "E", 0, 3, 3, 3, 3, 0, 
-  "E", 0, 0, 3, 3, 0, 0,
-  "F", 0, 0, 0, 0, 0, 0, 
-  "F", 0, 0, 3, 3, 0, 0,
-  "F", 0, 0, 3, 3, 0, 0, 
-  "F", 0, 0, 0, 0, 0, 0,
-  "G", 0, 0, 0, 0, 0, 0, 
-  "G", 0, 0, 3, 0, 0, 0,
-  "G", 0, 0, 0, 3, 0, 0, 
-  "G", 0, 0, 0, 0, 0, 0
-)
+readxl::read_xlsx("brickr_release3.xlsx", sheet = "izzy-iggy") %>% 
+  bricks_from_excel(
+    #piece_table = readxl::read_xlsx("brickr_release3.xlsx", sheet = "brickr3_p")
+  ) %>% 
+  build_bricks(rgl_lit = FALSE, outline_bricks = TRUE,
+               background_color =  "#99e7ff")
 
-brick_colors <- tibble::tribble(
-  ~`.value`, ~Color,
-  1, "Bright green",
-  2, "Dark orange",
-  3, "Dark green"
-)
-  
-tree_or_mushroom %>% 
-  bricks_from_table(brick_colors) %>% 
-  build_bricks()
+rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), .1*pi, 0, 0 ,1))
 
-rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 1.1*pi/4, 0, 0 ,1))
+par3d(windowRect = c(20, 30, 900, 800))
 ```
 

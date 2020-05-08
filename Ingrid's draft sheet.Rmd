@@ -24,7 +24,7 @@ library(tidyr)
 
 
 
-```{r, eval=FALSE}
+```{r}
 sets <- read.csv("~/Math241/Iggy-Izzy/data/sets.csv")
 
 colors <- read.csv("~/Math241/Iggy-Izzy/data/colors (2).csv") 
@@ -72,7 +72,7 @@ colorsyear %>% mutate_all(funs(replace_na(0)))
 ```
 
 
-```{r, eval=FALSE}
+```{r, include=FALSE, eval=FALSE}
 
 themesyear<- sets_themes %>%
   count(year, theme_name) %>%
@@ -97,7 +97,7 @@ Obi-Wan's Jedi Starfighter
 2010
 171
 676
-```{r, eval=FALSE}
+```{r, include=FALSE, eval=FALSE}
 
 inventory_parts <- read_csv("inventory_parts.csv")
 parts <- read_csv("parts.csv")
@@ -114,7 +114,7 @@ obiwan <- inventory_parts %>%
 
 ```
 
-```{r, eval=FALSE}
+```{r, include=FALSE, eval=FALSE}
 #devtools::install_github("ryantimpe/brickr")
 
 library(rayshader)
@@ -173,7 +173,7 @@ my_first_model %>%
 rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 1.1*pi, 0, 0 ,1))
 ```
 
-```{r}
+```{r, include=FALSE, eval=FALSE}
 library(brickr)
 library(rayshader)
 library(rgl)
