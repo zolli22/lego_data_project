@@ -20,56 +20,34 @@ library(tidyverse)
 library(readr)
 library(dplyr)
 library(tidyr)
+library(here)
 ```
 
 
 
-```{r}
-sets <- read.csv("~/Math241/Iggy-Izzy/data/sets.csv")
+```{r datasets}
+sets <- read.csv(here("data/sets.csv"))
 
-colors <- read.csv("~/Math241/Iggy-Izzy/data/colors (2).csv") 
+colors <- read.csv(here("data/colors (2).csv"))
 
-inventories <- read.csv("~/Math241/Iggy-Izzy/data/inventories.csv")
+inventories <- read.csv(here("data/inventories.csv"))
 
-parts_inventory <- read.csv("~/Math241/Iggy-Izzy/data/inventory_parts.csv")
+parts_inventory <- read.csv(here("data/inventory_parts.csv"))
 
-sets_inventory <- read.csv("~/Math241/Iggy-Izzy/data/inventory_sets.csv")
+sets_inventory <- read.csv(here("data/inventory_sets.csv"))
 
-minifigs <- read.csv("~/Math241/Iggy-Izzy/data/minifigs.csv")
+minifigs <- read.csv(here("data/minifigs.csv"))
 
-parts_categories <- read.csv("~/Math241/Iggy-Izzy/data/part_categories.csv")
+parts_categories <- read.csv(here("data/part_categories.csv"))
 
-parts_relationships <- read.csv("~/Math241/Iggy-Izzy/data/part_relationships.csv")
+parts_relationships <- read.csv(here("data/part_relationships.csv"))
 
-parts <- read.csv("~/Math241/Iggy-Izzy/data/parts.csv")
+parts <- read.csv(here("data/parts.csv"))
 
-themes <- read.csv("~/Math241/Iggy-Izzy/data/themes.csv")
-
-
+themes <- read.csv(here("data/themes.csv"))
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-```{r}
-inventories <- rename(inventories, "inventory_id"="id")
-
-bigsets <- inventories %>%
-  left_join(sets, by="set_num") %>%
-  left_join(parts_inventory, by="inventory_id") %>%
-  left_join(colors, by="color_id") %>%
-  rename("set_name"="name.x", "color_name"="name.y")
-
-colorsyear<- bigsets %>%
-  select(5, 10, 12) %>%
-  group_by(year) %>%
-  count(year, color_name)
-
-colorsyear<-colorsyear %>%
-  pivot_wider(names_from=year, values_from=n)
-
-colorsyear %>% mutate_all(funs(replace_na(0)))
-
-```
 
 
 ```{r, include=FALSE, eval=FALSE}
