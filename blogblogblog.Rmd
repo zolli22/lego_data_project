@@ -19,6 +19,10 @@ library(rgl)
 library(circlepackeR)
 library(data.tree)
 library(treemap)
+library(networkD3)
+library(RColorBrewer)
+library(ggraph)
+
 
 rgl::setupKnitr()
 ```
@@ -90,6 +94,103 @@ par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
 par3d(windowRect = c(20, 30, 900, 800))
 ```
 
+
+
+
+```{r wranglin sets & themes}
+## wranglin 
+
+
+smallthemes <- themes %>%
+  select(id, name) %>%
+  rename("theme_id"=id)
+
+## dataset containing sets, themes, and number of parts 
+
+sets_themes <- sets %>%
+  filter(num_parts >= 40) %>%
+  left_join(smallthemes, by="theme_id") %>%
+  rename("set_name"=name.x, "theme_name"=name.y)
+
+
+```
+
+```{r, eval = TRUE}
+## converting the data.frame to a data.tree structure
+sets_themes$pathString <- paste("legos", 
+                            sets_themes$theme_name,  
+                            sets_themes$set_name,
+                            sep = "/")
+```
+
+
+```{r, echo = FALSE}
+
+# top 10 themes 
+top_themes <- sets_themes %>%
+  count(theme_name) %>% 
+  top_n(10)
+
+top_10_themes <- left_join(top_themes,sets_themes, by="theme_name")
+
+# top 100 largest sets by number of parts 
+
+large_sets <- top_10_themes %>%
+  top_n(100, num_parts)
+
+```
+
+```{r}
+large_sets <- as.Node(large_sets) 
+print(large_sets, limit = 20)
+
+
+ # within the top 10 themes these are the 100 sets with the most pieces. 
+    large_sets_list <- ToListExplicit(large_sets, unname = TRUE)
+    
+## the best radial network 
+    radialNetwork(large_sets_list)
+      
+      
+```
+
+
+
+```{r, echo = FALSE} 
+##Keep this
+# Circlepacker package
+
+
+sets_themes2$pathString <- paste("legos", 
+                            sets_themes$theme_name, 
+                            sets_themes$set_name, 
+                            sets_themes$num_parts,
+                            sep = "/")
+
+
+top_5_themes <- left_join(the_themes,sets_themes2, by="theme_name") %>% 
+  top_n(100, num_parts)
+
+legos_circle <- as.Node(top_5_themes)
+print(legos, "num_parts")
+
+# Make the plot
+#circlepackeR(population, size = "value")
+
+# You can custom the minimum and maximum value of the color range.
+
+ p <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+ p
+
+```
+
+
+
+
+
+
+
 ```{r milf circlepackR}
 #USC Millennium Falcon, 7541 parts, released 2017
 #set num = 75192-1
@@ -118,3 +219,19 @@ m <- circlepackeR(MILF, size = "quantity", width = 1000, height = 800)
 
 m
 ```
+
+
+
+```{r mosaics}
+
+mosaic_izzy %>% build_mosaic() 
+# Isabelle 
+
+
+
+```
+
+
+
+
+
