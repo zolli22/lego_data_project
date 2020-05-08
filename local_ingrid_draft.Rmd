@@ -20,6 +20,9 @@ library(tidyverse)
 library(readr)
 library(dplyr)
 library(tidyr)
+library(circlepackeR)
+library(data.tree)
+library(treemap)
 ```
 
 
@@ -48,166 +51,9 @@ themes <- read.csv("~/Iggy-Izzy/data/themes.csv")
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-```{r, eval=FALSE, include=FALSE}
-inventories <- rename(inventories, "inventory_id"="id")
-
-bigsets <- inventories %>%
-  left_join(sets, by="set_num") %>%
-  left_join(parts_inventory, by="inventory_id") %>%
-  left_join(colors, by="color_id") %>%
-  rename("set_name"="name.x", "color_name"="name.y")
-
-colorsyear<- bigsets %>%
-  select(5, 10, 12) %>%
-  group_by(year) %>%
-  count(year, color_name)
-
-colorsyear<-colorsyear %>%
-  pivot_wider(names_from=year, values_from=n)
-
-colorsyear %>% mutate_all(funs(replace_na(0)))
-
-```
-
-
-```{r, eval=FALSE}
-
-themesyear<- sets_themes %>%
-  count(year, theme_name) %>%
-  group_by(year) %>%
-  mutate(prop=n/sum(n)) %>%
-  arrange(desc(n), .by_group = TRUE) %>%
-  top_n(10) %>%
-  ungroup() %>%
-  group_by(theme_name) %>%
-  count(theme_name)
-
-sets_themes %>%
-  count(theme_name)%>%
-  arrange(desc(n))
-
-starwarssets <- sets_themes %>%
-  filter(theme_name == "Star Wars")
-```
-
-10215-1
-Obi-Wan's Jedi Starfighter
-2010
-171
-676
-```{r, eval=FALSE}
-
-inventory_parts <- read_csv("inventory_parts.csv")
-parts <- read_csv("parts.csv")
-colors <- read_csv("colors (2).csv") %>%
-  rename("color_id"="id")
-
-inventories %>%
-  filter(set_num == "10215-1")
-
-obiwan <- inventory_parts %>%
-  filter(inventory_id == 2268) %>%
-  left_join(colors, by="color_id") %>%
-  left_join(parts, by="part_num")
-
-```
-
-```{r, eval=FALSE}
-#devtools::install_github("ryantimpe/brickr")
-
-library(rayshader)
-library(rgl)
-
-#This is a brick
-brick <- data.frame(
-  Level="A",
-  X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
-  X2 = rep(3,4)
-)
-
-brick %>% 
-  bricks_from_table() %>% 
-  build_bricks()
-
-#Rotate the default view for a better snapshot
-rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 0.75*pi, 0, 0 ,1))
-
-my_first_model <- tibble::tribble(
-  ~Level, ~X1, ~X2, ~X3, ~x4, ~x5, ~X6, ~x7, ~x8,
-  "A", 1, 1, 1, 0, 1, 1, 1, 1,
-  "A", 1, 0, 0, 0, 0, 0, 0, 1,
-  "A", 1, 0, 0, 0, 0, 0, 0, 1,
-  "A", 1, 1, 1, 1, 1, 1, 1, 1,
-  "B", 1, 0, 1, 0, 1, 1, 0, 1,
-  "B", 1, 0, 0, 0, 0, 0, 0, 1,
-  "B", 1, 0, 0, 0, 0, 0, 0, 1,
-  "B", 1, 0, 1, 0, 0, 1, 0, 1,
-  "C", 1, 1, 1, 1, 1, 1, 1, 1,
-  "C", 1, 0, 0, 0, 0, 0, 0, 1,
-  "C", 1, 0, 0, 0, 0, 0, 0, 1,
-  "C", 1, 1, 1, 1, 1, 1, 1, 1,
-  "D", 2, 2, 2, 2, 2, 2, 2, 2,
-  "D", 1, 0, 0, 0, 0, 0, 0, 1,
-  "D", 1, 0, 0, 0, 0, 0, 0, 1,
-  "D", 2, 2, 2, 2, 2, 2, 2, 2,
-  "E", 0, 0, 0, 0, 0, 0, 0, 0,
-  "E", 2, 2, 2, 2, 2, 2, 2, 2,
-  "E", 2, 2, 2, 2, 2, 2, 2, 2,
-  "E", 0, 0, 0, 0, 0, 0, 0, 0
-)
-
-brick_colors <- tibble::tribble(
-  ~`.value`, ~Color,
-  1, "Bright blue",
-  2, "Dark orange"
-)
-  
-my_first_model %>% 
-  bricks_from_table(brick_colors) %>% 
-  build_bricks()
-
-
-#Rotate the default view for a better snapshot
-rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 1.1*pi, 0, 0 ,1))
-```
-
-```{r, include=FALSE, eval=FALSE}
-library(brickr)
-library(rayshader)
-library(rgl)
-#This is a brick
-brick <- data.frame(
-Level="A",
-X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
-X2 = rep(3,4)
-)
-#Convert the dataframe to a list object that can be rendered
-brick_object <- brick %>%
-bricks_from_table()
-#Render it
-brick_object %>%
-build_bricks()
-open3d()
-
-
-#Combine the option rgl_lit=FALSE & outline_bricks=TRUE
-# This makes the rendering look like a drawing
-brick_object %>%
-build_bricks(outline_bricks = TRUE, rgl_lit = FALSE,
-background_color = "#99e7ff")
-rgl::clear3d()
-```
-
-
-
-```{r, eval=FALSE, include=FALSE}
+```{r}
 #CirclepackeR
-
-library(circlepackeR)
-library(data.tree)
-library(treemap)
 
 #inventories %>%
   #filter(set_num == "41101-1")
@@ -266,10 +112,7 @@ n
 #inventories %>%
   #filter(set_num == "41075-1")
 
-library(dplyr)
-library(circlepackeR)
-library(data.tree)
-library(treemap)
+
 
 colors <- colors %>%
   rename("color_id"="id")
@@ -327,8 +170,4 @@ h <- circlepackeR(hotel, size = "quantity",  width = 1000, height = 800)
 h
 ```
 
-```{r}
-LOTR <- sets %>%
-  filter(theme_id == 566)
-```
 
