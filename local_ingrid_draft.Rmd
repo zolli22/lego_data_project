@@ -52,7 +52,7 @@ themes <- read.csv("~/Iggy-Izzy/data/themes.csv")
 ```
 
 
-```{r}
+```{r, include=FALSE, eval=FALSE}
 #CirclepackeR
 
 #inventories %>%
