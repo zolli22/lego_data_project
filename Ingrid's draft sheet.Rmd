@@ -240,3 +240,26 @@ n <- circlepackeR(milf2.0, size = "quantity", color_min = "hsl(56,80%,80%)", col
 n
 ```
 
+```{r treemap}
+treemap(millenium_falcon,
+            index="color_name",
+            vSize="quantity",
+            type="index"
+            )
+
+bigcolors <- sets %>%
+  filter(year == 2000) %>%
+  left_join(inventories, by="set_num") %>%
+  rename("inventory_id"="id") %>%
+  left_join(parts_inventory, by="inventory_id") %>%
+  left_join(colors, by="color_id") %>%
+  filter(num_parts > 0) %>%
+  select(2, 3, 10, 12, 13)
+
+treemap(bigcolors,
+            index="name.y",
+            vSize="quantity",
+            type="index"
+            )
+```
+
