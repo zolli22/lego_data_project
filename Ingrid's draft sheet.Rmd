@@ -43,12 +43,16 @@ parts_relationships <- read.csv(here("data/part_relationships.csv"))
 parts <- read.csv(here("data/parts.csv"))
 
 themes <- read.csv(here("data/themes.csv"))
+
+minifig_inventory <- read.csv(here("data/inventory_minifigs.csv"))
 ```
 
 ```{r renaming variables}
 colors <- rename(colors, "color_id"="id")
 
 parts_categories <- rename(parts_categories, "part_cat_id"="id")
+
+inventories<- rename(inventories, "inventory_id"="id")
 ```
 
 
@@ -82,6 +86,7 @@ millenium_falcon <- parts_inventory %>%
   left_join(parts, by="part_num") %>%
   left_join(parts_categories, by="part_cat_id") %>%
   rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
 
 millenium_falcon$pathString <- paste("mf", 
                             millenium_falcon$color_name, 
@@ -148,5 +153,15 @@ treemap(bigcolors,
             vSize="quantity",
             type="index"
             )
+```
+
+```{r}
+millennium_figs <- inventories %>%
+  filter(inventory_id == 19670) %>%
+  left_join(minifig_inventory, by="inventory_id") %>%
+  left_join(minifigs, by="fig_num") %>%
+  select(4, 6, 7)
+
+millennium_figs
 ```
 
