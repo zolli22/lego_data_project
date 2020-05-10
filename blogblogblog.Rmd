@@ -141,6 +141,8 @@ large_sets <- top_10_themes %>%
 ```
 
 ```{r}
+
+## data tree structure! Neet!
 large_sets <- as.Node(large_sets) 
 print(large_sets, limit = 20)
 
@@ -160,24 +162,26 @@ print(large_sets, limit = 20)
 ##Keep this
 # Circlepacker package
 
+the_themes <- sets_themes %>%
+  count(theme_name) %>%
+  top_n(5)
 
-sets_themes2$pathString <- paste("legos", 
+
+
+sets_themes$pathString <- paste("legos", 
                             sets_themes$theme_name, 
                             sets_themes$set_name, 
                             sets_themes$num_parts,
                             sep = "/")
 
 
-top_5_themes <- left_join(the_themes,sets_themes2, by="theme_name") %>% 
+top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>% 
   top_n(100, num_parts)
 
 legos_circle <- as.Node(top_5_themes)
-print(legos, "num_parts")
+print(legos_circle, limit = 2-)
 
 # Make the plot
-#circlepackeR(population, size = "value")
-
-# You can custom the minimum and maximum value of the color range.
 
  p <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
 
@@ -224,8 +228,10 @@ m
 
 ```{r mosaics}
 
-mosaic_izzy %>% build_mosaic() 
-# Isabelle 
+mosaic <- png::readPNG("iggy-izzy.png") %>% 
+  image_to_mosaic(img_size = 80) 
+
+mosaic%>% build_mosaic()
 
 
 
