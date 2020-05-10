@@ -51,7 +51,7 @@ themes <- read.csv(here("data/themes.csv"))
 minifig_inventory <- read.csv(here("data/inventory_minifigs.csv"))
 ```
 
-```{r renaming variables}
+```{r renaming variables, echo=FALSE}
 colors <- rename(colors, "color_id"="id")
 
 parts_categories <- rename(parts_categories, "part_cat_id"="id")
@@ -229,14 +229,6 @@ m
 
 
 
-```{r mosaics}
-
-mosaic_izzy %>% build_mosaic() 
-# Isabelle 
-
-
-
-```
 
 
 
@@ -279,3 +271,13 @@ bigcolors %>%
   head(10)
 ```
 
+
+
+```{r mosaics}
+
+mosaic_izzy %>% build_mosaic() 
+# Isabelle 
+
+
+
+```
