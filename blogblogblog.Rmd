@@ -47,12 +47,16 @@ parts_relationships <- read.csv(here("data/part_relationships.csv"))
 parts <- read.csv(here("data/parts.csv"))
 
 themes <- read.csv(here("data/themes.csv"))
+
+minifig_inventory <- read.csv(here("data/inventory_minifigs.csv"))
 ```
 
 ```{r renaming variables}
 colors <- rename(colors, "color_id"="id")
 
 parts_categories <- rename(parts_categories, "part_cat_id"="id")
+
+inventories<- rename(inventories, "inventory_id"="id")
 ```
 
 ```{r hello kelly, rgl=TRUE, dev='png', warning=FALSE, message=FALSE, echo=FALSE, fig.align='center'}
@@ -233,12 +237,47 @@ mosaic_izzy %>% build_mosaic()
 
 
 
-```{r millennium falcon image}
+```{r millennium falcon image, echo=FALSE}
 knitr::include_graphics(here("millenniumfalcon.png"))
 ```
 
 
-```{r millennium falcon minifigs}
+
+```{r minifigs}
+millennium_figs <- inventories %>%
+  filter(inventory_id == 19670) %>%
+  left_join(minifig_inventory, by="inventory_id") %>%
+  left_join(minifigs, by="fig_num") %>%
+  select(4, 6, 7)
+
+millennium_figs
+
 knitr::include_graphics(here("milf_minifigs.png"))
+```
+
+```{r 2000 colors treemap}
+#wrangling!
+bigcolors <- sets %>%
+  filter(year == 2000) %>%
+  left_join(inventories, by="set_num") %>%
+  left_join(parts_inventory, by="inventory_id") %>%
+  left_join(colors, by="color_id") %>%
+  filter(num_parts > 0) %>%
+  select(2, 3, 10, 12, 13) %>%
+  group_by(name.y) %>%
+  summarise(n=sum(quantity)) %>%
+  arrange(desc(n)) %>%
+  rename("color"="name.y", "n_parts"="n")
+
+#treemap
+treemap(bigcolors,
+            index="color",
+            vSize="n_parts",
+            type="index"
+            )
+
+#dataframe
+bigcolors %>%
+  head(10)
 ```
 
