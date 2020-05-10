@@ -191,7 +191,10 @@ print(legos, "num_parts")
 
 
 
-
+## The Millennium Falcon
+```{r millennium falcon image, echo=FALSE}
+knitr::include_graphics(here("millenniumfalcon.png"))
+```
 
 
 
@@ -235,11 +238,6 @@ mosaic_izzy %>% build_mosaic()
 
 ```
 
-
-
-```{r millennium falcon image, echo=FALSE}
-knitr::include_graphics(here("millenniumfalcon.png"))
-```
 
 
 
