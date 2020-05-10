@@ -43,12 +43,16 @@ parts_relationships <- read.csv(here("data/part_relationships.csv"))
 parts <- read.csv(here("data/parts.csv"))
 
 themes <- read.csv(here("data/themes.csv"))
+
+minifig_inventory <- read.csv(here("data/inventory_minifigs.csv"))
 ```
 
 ```{r renaming variables}
 colors <- rename(colors, "color_id"="id")
 
 parts_categories <- rename(parts_categories, "part_cat_id"="id")
+
+inventories<- rename(inventories, "inventory_id"="id")
 ```
 
 
@@ -82,6 +86,7 @@ millenium_falcon <- parts_inventory %>%
   left_join(parts, by="part_num") %>%
   left_join(parts_categories, by="part_cat_id") %>%
   rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+
 
 millenium_falcon$pathString <- paste("mf", 
                             millenium_falcon$color_name, 
@@ -125,5 +130,38 @@ TREE <- as.Node(treehouse)
 tree <- circlepackeR(TREE, size = "quantity",  width = 1000, height = 800)
 
 tree
+```
+
+```{r treemap}
+treemap(millenium_falcon,
+            index="color_name",
+            vSize="quantity",
+            type="index"
+            )
+
+bigcolors <- sets %>%
+  filter(year == 2000) %>%
+  left_join(inventories, by="set_num") %>%
+  rename("inventory_id"="id") %>%
+  left_join(parts_inventory, by="inventory_id") %>%
+  left_join(colors, by="color_id") %>%
+  filter(num_parts > 0) %>%
+  select(2, 3, 10, 12, 13)
+
+treemap(bigcolors,
+            index="name.y",
+            vSize="quantity",
+            type="index"
+            )
+```
+
+```{r}
+millennium_figs <- inventories %>%
+  filter(inventory_id == 19670) %>%
+  left_join(minifig_inventory, by="inventory_id") %>%
+  left_join(minifigs, by="fig_num") %>%
+  select(4, 6, 7)
+
+millennium_figs
 ```
 

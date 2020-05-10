@@ -239,5 +239,12 @@ mosaic%>% build_mosaic()
 
 
 
+```{r millennium falcon image}
+knitr::include_graphics(here("millenniumfalcon.png"))
+```
 
+
+```{r millennium falcon minifigs}
+knitr::include_graphics(here("milf_minifigs.png"))
+```
 
