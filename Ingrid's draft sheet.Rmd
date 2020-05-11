@@ -49,31 +49,6 @@ themes <- read.csv(here("data/themes.csv"))
 minifig_inventory <- read.csv(here("data/inventory_minifigs.csv"))
 ```
 
-```{r renaming variables}
-colors <- rename(colors, "color_id"="id")
-
-parts_categories <- rename(parts_categories, "part_cat_id"="id")
-
-inventories<- rename(inventories, "inventory_id"="id")
-```
-
-
-```{r red brick, rgl=TRUE, dev='png', warning=FALSE, message=FALSE, echo=FALSE, fig.align='center'}
-#This is a brick
-brick <- data.frame(
-  Level="A",
-  X1 = rep(3,4), #The number 3 is the brickrID for 'bright red'
-  X2 = rep(3,4)
-)
-
-brick %>% 
-  bricks_from_table() %>% 
-  build_bricks()
-
-#Rotate the default view for a better snapshot
-rgl::par3d(userMatrix = rgl::rotate3d(rgl::par3d("userMatrix"), 0.75*pi, 0, 0 ,1))
-```
-
 
 ```{r milf circlepackR}
 #USC Millennium Falcon, 7541 parts, released 2017
@@ -105,66 +80,46 @@ m <- circlepackeR(MILF, size = "quantity", width = 1000, height = 800)
 m
 ```
 
-```{r}
-#Tree house set, 3037 parts, released 2019
-#set num = 21318-1
+```{r wranglin sets & themes, echo=FALSE}
+## wranglin 
 
-inventories %>%
-  filter(set_num == "21318-1")
 
-treehouse <- parts_inventory %>%
-  filter(inventory_id == 37728) %>%
-  left_join(colors, by="color_id") %>%
-  left_join(parts, by="part_num") %>%
-  left_join(parts_categories, by="part_cat_id") %>%
-  rename("part_cat"="name", "color_name"="name.x", "part_name"="name.y")
+smallthemes <- themes %>%
+  select(id, name) %>%
+  rename("theme_id"=id)
 
-treehouse$pathString <- paste("mf", 
-                            treehouse$color_name, 
-                            treehouse$part_cat,
-                            treehouse$part_name,
-                            treehouse$quantity,
+## dataset containing sets, themes, and number of parts 
+
+sets_themes <- sets %>%
+  filter(num_parts >= 40) %>%
+  left_join(smallthemes, by="theme_id") %>%
+  rename("set_name"=name.x, "theme_name"=name.y)
+
+
+```
+
+```{r} 
+##Keep this
+# Circlepacker package
+
+the_themes <- sets_themes %>%
+  count(theme_name) %>%
+  top_n(5)
+
+sets_themes$pathString <- paste("legos", 
+                            sets_themes$theme_name, 
+                            sets_themes$set_name, 
+                            sets_themes$num_parts,
                             sep = "/")
 
-TREE <- as.Node(treehouse)
+top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>% 
+  top_n(100, num_parts)
 
-#color, then part category, then part type, 
-tree <- circlepackeR(TREE, size = "quantity",  width = 1000, height = 800)
+legos_circle <- as.Node(top_5_themes)
 
-tree
+# Make the plot
+
+ circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+circle_g
 ```
-
-```{r 2000 colors treemap}
-
-bigcolors <- sets %>%
-  filter(year == 2000) %>%
-  left_join(inventories, by="set_num") %>%
-  left_join(parts_inventory, by="inventory_id") %>%
-  left_join(colors, by="color_id") %>%
-  filter(num_parts > 0) %>%
-  select(2, 3, 10, 12, 13) %>%
-  group_by(name.y) %>%
-  summarise(n=sum(quantity)) %>%
-  arrange(desc(n)) %>%
-  rename("color"="name.y", "n_parts"="n")
-
-treemap(bigcolors,
-            index="color",
-            vSize="n_parts",
-            type="index"
-            )
-
-bigcolors %>%
-  head(10)
-```
-
-```{r}
-millennium_figs <- inventories %>%
-  filter(inventory_id == 19670) %>%
-  left_join(minifig_inventory, by="inventory_id") %>%
-  left_join(minifigs, by="fig_num") %>%
-  select(4, 6, 7)
-
-millennium_figs
-```
-
