@@ -144,7 +144,9 @@ legos_circle <- as.Node(top_5_themes)
 
 # Make the plot
 
-circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min =
+          "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", 
+          width = 1000, height = 800)
 
 circle_g
 ```
