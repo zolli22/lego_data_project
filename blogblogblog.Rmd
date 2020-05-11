@@ -70,7 +70,7 @@ par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
 ```
 
 
-##Welcome to the Wonderful World of Lego!
+## Welcome to the Wonderful World of Lego!
 
 We can’t be the only people who have spent evenings lying awake in bed wishing that we could render some lego bricks in R. Luckily for us, the wonderful Simon Couch introduced us to a package called `brickr` created by Ryan Timpe, where we can do that, and so much more! `Brickr` has two main functions- creating 2D mosaics from uploaded images, and rendering legos or sets in 3D. We highly recommend `brickr` as a fun and educational method of procrastination. Both the `brickr` github repo and Rian Timpe’s personal repo have many fun examples of `brickr` in action, including a Baby Yoda model! We spent SO MUCH TIME trying to get the `brickr` 3D renderings to work correctly, and at one point even considered DMing the creater on twitter to see if he could help us. But we finally figured it out, and rendered the most beautiful red 2 x 4 lego brick we had ever seen. While we made many things with `brickr`, we decided to include three 3D renderings: “Hello Kelly” (because we wanted to say hi to Kelly!), “Izzy-Iggy” (the name of our github repo from the project), and a cute little house we designed instead of studying for our other finals! All three of these were made using the `bricks_from_excel()` function in brickr, and were designed on a template excel document that was set up to be read by `brickr`. 
 
@@ -215,7 +215,7 @@ bigcolors <- sets %>%
 ```
 
 
-##Colors of the Millennium (the year 2000)
+## Colors of the Millennium (the year 2000)
 
 After looking in depth at the Millennium Falcon, we found ourselves wondering about what the most common colors in other lego sets are. And continuing with our “millennium” theme, we looked at lego sets that were released in the year 2000. The treemap package turned out to be frustrating to work with. There isn’t a lot of documentation, and any documentation hasn’t been updated since 2017. Ideally, the treemap would be colored by the color of the part represented, but we couldn’t figure out how to fix that. Either way, the figure shows that black and light grey were the most common colors used in 2000, with 8660 black pieces and 4962 light grey pieces. The treemap also doesn’t display the numbers, so we had to figure those out with some classic `dplyr` techniques. 
 ```{r}
@@ -231,7 +231,7 @@ bigcolors %>%
   head(10)
 ```
 
-
+### Kelly's Angels 
 
 ```{r mosaics, fig.align='center'}
 
@@ -240,9 +240,12 @@ mosaic <- png::readPNG("iggy-izzy.png") %>%
 
 mosaic %>% build_mosaic()
 
-mosaic %>% build_instructions(6)
 
 mosaic %>% build_pieces()
+
 ```
 
+On a final note, have you ever wanted see what you would look like made out of lego bricks? Luckily you can actualize your dreams using the `brickr` package. 
+Building the mosaic is surprsingly fairly straightforward. First you have to upload a png file to your R-studio and then using the `read:PNG` function to save the image and then pipe it through the `build_mosaic` function. In addition, the `build_pieces` function gives you a nice run through of the suggested lego pieces to recreate your image. 
 
+We had a lot fun creating these graphics and hope you enjoyed them to! 
