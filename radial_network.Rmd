@@ -1,6 +1,10 @@
 ---
 title: "radial_network"
-output: html_document
+date: "May 11th 2020"
+author: "Ingrid Zoll and Isabelle Caldwell"
+output: 
+  prettydoc::html_pretty:
+    theme: hpstr
 ---
 
 ```{r setup, include=FALSE}
