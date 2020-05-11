@@ -183,7 +183,7 @@ top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>%
   top_n(100, num_parts)
 
 legos_circle <- as.Node(top_5_themes)
-print(legos_circle, limit = 2-)
+print(legos_circle, limit = 20)
 
 # Make the plot
 
@@ -234,13 +234,7 @@ m
 
 
 
-<<<<<<< HEAD
-mosaic <- png::readPNG("iggy-izzy.png") %>% 
-  image_to_mosaic(img_size = 80) 
 
-mosaic%>% build_mosaic()
-=======
->>>>>>> 54e624fa5e6c9678bec7d4dc0828911924bec846
 
 
 
@@ -286,9 +280,10 @@ bigcolors %>%
 
 ```{r mosaics}
 
-mosaic_izzy %>% build_mosaic() 
-# Isabelle 
+mosaic <- png::readPNG("iggy-izzy.png") %>% 
+  image_to_mosaic(img_size = 80) 
 
+mosaic%>% build_mosaic()
 
 
 ```
