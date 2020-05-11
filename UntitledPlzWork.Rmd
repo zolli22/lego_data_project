@@ -103,7 +103,6 @@ par3d(windowRect = c(20, 30, 900, 800))
 
 We’ve all been there, you’re sitting with a cup of coffee in hand staring upon your giant lego collection and thinking, “I wonder what the largest lego set is?”. Well, it turns out the largest lego set is the 2017 Millenium Falcon, which has 7541 pieces in it. Since 2000 there have been 21 different versions and redesigns of the millenium falcon set. Other very large lego sets include the Harry Potter Hogwarts Castle with 6020 pieces, the Taj Mahal with 5932 pieces, and the 2007 Millennium Falcon with 5197 pieces. 
 
-
 ```{r wranglin sets & themes, echo=FALSE}
 ## wranglin 
 
@@ -279,7 +278,10 @@ bigcolors %>%
 mosaic <- png::readPNG("iggy-izzy.png") %>% 
   image_to_mosaic(img_size = 80) 
 
-mosaic%>% build_mosaic()
+mosaic %>% build_mosaic()
 
+mosaic %>% build_instructions(9)
+
+mosaic %>% build_pieces()
 
 ```
