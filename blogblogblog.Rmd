@@ -1,6 +1,9 @@
 ---
 title: "blogblogblog"
 output: html_document
+date: "May 11th 2020"
+theme: lumen 
+author: "Ingrid Zoll and Isabelle Caldwell"
 ---
 
 ```{r setup, include=FALSE}
@@ -8,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r libraries, message=FALSE}
+```{r libraries, message=FALSE, warning = FALSE}
 library(tidyverse)
 library(jpeg)
 library(readxl)
@@ -90,7 +93,7 @@ par3d(windowRect = c(20, 30, 900, 800))
 
 read_xlsx("~/Iggy-Izzy/data/brickr_pattern.xlsx", sheet = "mybrickr") %>% 
   bricks_from_excel() %>% 
-  build_bricks(rgl_lit = FALSE, outline_bricks = TRUE,
+ build_bricks(rgl_lit = FALSE, outline_bricks = TRUE,
                background_color =  "#99e7ff")
 
 par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
@@ -119,7 +122,12 @@ sets_themes <- sets %>%
 
 ```
 
-```{r, eval = TRUE}
+The data used to create the following graphs comes from the Rebrickable website. [here](https://rebrickable.com/). Rebrickable allows users to input different lego pieces and gives them instructions to create sets out of the pieces they already own. This means that Rebrickable has tons and tons of data on legos, literally twelve different CSV’s of colors, size, part, theme, anything you could possibly want to know about an individual lego or set. Rebrickable has all of their data available for free on their website or through their API. The data was luckily in a tidy format (yay!) and using the handy schema we were able to combine data sets containing the information we desired. To create the radial networks and other graphs we desired the data needed to be formatted into a data tree.  Luckily, the data.tree package has just the tools to make that happen! A data tree is a made up of nodes, where each node is a data structure consisting of a value.  In a couple of our data trees the ‘root’ node is legos and then from there the ‘children’ nodes are themes, sets, and maybe the number of parts. The data tree is non linear in the sense that none of the  ‘child’ nodes can point back to the ‘root’ node.  The data.tree package allowed us to easily create these nested data frames using the paste function, the $ operator, and the as.node function. 
+
+Here are some cool graphs we made!! 
+
+
+```{r, eval = TRUE, echo= TRUE}
 ## converting the data.frame to a data.tree structure
 sets_themes$pathString <- paste("legos", 
                             sets_themes$theme_name,  
@@ -160,6 +168,7 @@ print(large_sets, limit = 20)
       
 ```
 
+Once our data trees were created we could start graphing (yay!). At the center of the radial network is legos, from there the first set of nodes is the top ten lego themes by number of occurrences, and each the secondary set of nodes is the largest sets, limited to 100 for legability. Perusing through the network we can see that Star Wars is a popular theme with many large sets. 
 
 
 ```{r, echo = FALSE} 
@@ -183,16 +192,17 @@ top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>%
   top_n(100, num_parts)
 
 legos_circle <- as.Node(top_5_themes)
-print(legos_circle, limit = 20)
+
 
 # Make the plot
 
- p <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+ circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
 
- p
+ circle_g
 
 ```
 
+The largest circle in this figure represents legos i.e the tree root , then the next set of circles is the top five themes within legos. Within each theme are the largest sets and clicking on an individual set’s circle you can see the number of parts within that set. This graph is limited to the hundred largest lego sets within those top five themes. With the circlepackeR and the networkD3 packages we found ourselves wanting to change some of the characteristics of the graphs such as font size and spacing and it was slightly infuriating that these were not adjustable within the packages. 
 
 
 ## The Millennium Falcon
