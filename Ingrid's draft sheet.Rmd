@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r libraries}
 library(tidyverse)
+library(readxl)
 library(here)
 library(brickr)
 library(rayshader)
@@ -40,13 +41,66 @@ minifigs <- read.csv(here("data/minifigs.csv"))
 
 parts_categories <- read.csv(here("data/part_categories.csv"))
 
-parts_relationships <- read.csv(here("data/part_relationships.csv"))
-
 parts <- read.csv(here("data/parts.csv"))
 
 themes <- read.csv(here("data/themes.csv"))
 
 minifig_inventory <- read.csv(here("data/inventory_minifigs.csv"))
+```
+
+```{r renaming variables, echo=FALSE}
+colors <- rename(colors, "color_id"="id")
+
+parts_categories <- rename(parts_categories, "part_cat_id"="id")
+
+inventories<- rename(inventories, "inventory_id"="id")
+```
+
+
+```{r wranglin sets & themes, echo=FALSE}
+## wranglin 
+
+
+smallthemes <- themes %>%
+  select(id, name) %>%
+  rename("theme_id"=id)
+
+## dataset containing sets, themes, and number of parts 
+
+sets_themes <- sets %>%
+  filter(num_parts >= 40) %>%
+  left_join(smallthemes, by="theme_id") %>%
+  rename("set_name"=name.x, "theme_name"=name.y)
+
+
+```
+
+
+
+```{r} 
+##Keep this
+# Circlepacker package
+
+the_themes <- sets_themes %>%
+  count(theme_name) %>%
+  top_n(5)
+
+sets_themes$pathString <- paste("legos", 
+                            sets_themes$theme_name, 
+                            sets_themes$set_name, 
+                            sets_themes$num_parts,
+                            sep = "/")
+
+top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>% 
+  top_n(100, num_parts)
+
+legos_circle <- as.Node(top_5_themes)
+
+# Make the plot
+
+ circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
+
+circle_g
 ```
 
 
@@ -80,46 +134,3 @@ m <- circlepackeR(MILF, size = "quantity", width = 1000, height = 800)
 m
 ```
 
-```{r wranglin sets & themes, echo=FALSE}
-## wranglin 
-
-
-smallthemes <- themes %>%
-  select(id, name) %>%
-  rename("theme_id"=id)
-
-## dataset containing sets, themes, and number of parts 
-
-sets_themes <- sets %>%
-  filter(num_parts >= 40) %>%
-  left_join(smallthemes, by="theme_id") %>%
-  rename("set_name"=name.x, "theme_name"=name.y)
-
-
-```
-
-```{r} 
-##Keep this
-# Circlepacker package
-
-the_themes <- sets_themes %>%
-  count(theme_name) %>%
-  top_n(5)
-
-sets_themes$pathString <- paste("legos", 
-                            sets_themes$theme_name, 
-                            sets_themes$set_name, 
-                            sets_themes$num_parts,
-                            sep = "/")
-
-top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>% 
-  top_n(100, num_parts)
-
-legos_circle <- as.Node(top_5_themes)
-
-# Make the plot
-
- circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
-
-circle_g
-```

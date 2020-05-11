@@ -1,0 +1,81 @@
+---
+title: "radial_network"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, message=FALSE, warning = FALSE}
+library(tidyverse)
+library(here)
+library(data.tree)
+library(networkD3)
+```
+
+```{r datasets, echo=FALSE}
+sets <- read.csv(here("data/sets.csv"))
+
+themes <- read.csv(here("data/themes.csv"))
+```
+
+To create the radial networks and other graphs we desired the data needed to be formatted into a data tree.  Luckily, the data.tree package has just the tools to make that happen! A data tree is a made up of nodes, where each node is a data structure consisting of a value.  In a couple of our data trees the ‘root’ node is legos and then from there the ‘children’ nodes are themes, sets, and maybe the number of parts. The data tree is non linear in the sense that none of the  ‘child’ nodes can point back to the ‘root’ node.  The data.tree package allowed us to easily create these nested data frames using the paste function, the $ operator, and the as.node function. 
+
+Here are some cool graphs we made!! 
+
+Once our data trees were created we could start graphing (yay!). At the center of the radial network is legos, from there the first set of nodes is the top ten lego themes by number of occurrences, and each the secondary set of nodes is the largest sets, limited to 100 for legability. Perusing through the network we can see that Star Wars is a popular theme with many large sets. 
+
+
+```{r wranglin sets & themes, echo=FALSE}
+## wranglin 
+
+smallthemes <- themes %>%
+  select(id, name) %>%
+  rename("theme_id"=id)
+
+## dataset containing sets, themes, and number of parts 
+
+sets_themes <- sets %>%
+  filter(num_parts >= 40) %>%
+  left_join(smallthemes, by="theme_id") %>%
+  rename("set_name"=name.x, "theme_name"=name.y)
+
+
+```
+
+```{r, eval = TRUE, echo= TRUE}
+## converting the data.frame to a data.tree structure
+sets_themes$pathString <- paste("legos", 
+                            sets_themes$theme_name,  
+                            sets_themes$set_name,
+                            sep = "/")
+```
+
+
+```{r, echo = FALSE}
+# top 10 themes 
+top_themes <- sets_themes %>%
+  count(theme_name) %>% 
+  top_n(10)
+
+top_10_themes <- left_join(top_themes,sets_themes, by="theme_name")
+
+# top 100 largest sets by number of parts 
+
+large_sets <- top_10_themes %>%
+  top_n(100, num_parts)
+```
+
+```{r}
+## data tree structure! Neet!
+large_sets <- as.Node(large_sets) 
+print(large_sets, limit = 20)
+
+
+ # within the top 10 themes these are the 100 sets with the most pieces. 
+    large_sets_list <- ToListExplicit(large_sets, unname = TRUE)
+    
+## the best radial network 
+    radialNetwork(large_sets_list)
+```
