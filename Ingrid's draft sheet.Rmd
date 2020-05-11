@@ -132,27 +132,28 @@ tree <- circlepackeR(TREE, size = "quantity",  width = 1000, height = 800)
 tree
 ```
 
-```{r treemap}
-treemap(millenium_falcon,
-            index="color_name",
-            vSize="quantity",
-            type="index"
-            )
+```{r 2000 colors treemap}
 
 bigcolors <- sets %>%
   filter(year == 2000) %>%
   left_join(inventories, by="set_num") %>%
-  rename("inventory_id"="id") %>%
   left_join(parts_inventory, by="inventory_id") %>%
   left_join(colors, by="color_id") %>%
   filter(num_parts > 0) %>%
-  select(2, 3, 10, 12, 13)
+  select(2, 3, 10, 12, 13) %>%
+  group_by(name.y) %>%
+  summarise(n=sum(quantity)) %>%
+  arrange(desc(n)) %>%
+  rename("color"="name.y", "n_parts"="n")
 
 treemap(bigcolors,
-            index="name.y",
-            vSize="quantity",
+            index="color",
+            vSize="n_parts",
             type="index"
             )
+
+bigcolors %>%
+  head(10)
 ```
 
 ```{r}
