@@ -1,11 +1,15 @@
 ---
-title: "radial_network"
+title: "Radial Network"
 date: "May 11th 2020"
 author: "Ingrid Zoll and Isabelle Caldwell"
 output: 
   prettydoc::html_pretty:
     theme: hpstr
 ---
+## Radial Network Graph
+### from the `blogblogblog.html` file
+#### interactions between packages are weird :(
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
