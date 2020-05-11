@@ -1,9 +1,8 @@
 ---
 title: "blogblogblog"
-output: html_document
 date: "May 11th 2020"
-theme: lumen 
 author: "Ingrid Zoll and Isabelle Caldwell"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -25,8 +24,9 @@ library(treemap)
 library(networkD3)
 library(RColorBrewer)
 library(ggraph)
+```
 
-
+```{r, echo=FALSE}
 rgl::setupKnitr()
 ```
 
@@ -75,6 +75,10 @@ par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
 par3d(windowRect = c(20, 30, 900, 800))
 ```
 
+We can’t be the only people who have spent evenings lying awake in bed wishing that we could render some lego bricks in R. Luckily for us, the wonderful Simon Couch introduced us to a package called `brickr` created by Ryan Timpe, where we can do that, and so much more! `Brickr` has two main functions- creating 2D mosaics from uploaded images, and rendering legos or sets in 3D. We highly recommend `brickr` as a fun and educational method of procrastination. Both the `brickr` github repo and Rian Timpe’s personal repo have many fun examples of `brickr` in action, including a Baby Yoda model! We spent SO MUCH TIME trying to get the `brickr` 3D renderings to work correctly, and at one point even considered DMing the creater on twitter to see if he could help us. But we finally figured it out, and rendered the most beautiful red 2 x 4 lego brick we had ever seen. While we made many things with `brickr`, we decided to include three 3D renderings: “Hello Kelly” (because we wanted to say hi to Kelly!), “Izzy-Iggy” (the name of our github repo from the project), and a cute little house we designed instead of studying for our other finals! All three of these were made using the `bricks_from_excel()` function in brickr, and were designed on a template excel document that was set up to be read by `brickr`. 
+
+The `brickr` github repository can be found [here](https://github.com/ryantimpe/brickr)
+
 ```{r izzy-iggy, rgl=TRUE, dev='png', echo=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 #izzy-iggy
 
@@ -101,10 +105,10 @@ par3d(userMatrix = rotate3d(par3d("userMatrix"), .1*pi, 0, 0 ,1))
 par3d(windowRect = c(20, 30, 900, 800))
 ```
 
+We’ve all been there, you’re sitting with a cup of coffee in hand staring upon your giant lego collection and thinking, “I wonder what the largest lego set is?”. Well, it turns out the largest lego set is the 2017 Millenium Falcon, which has 7541 pieces in it. Since 2000 there have been 21 different versions and redesigns of the millenium falcon set. Other very large lego sets include the Harry Potter Hogwarts Castle with 6020 pieces, the Taj Mahal with 5932 pieces, and the 2007 Millennium Falcon with 5197 pieces. 
 
 
-
-```{r wranglin sets & themes}
+```{r wranglin sets & themes, echo=FALSE}
 ## wranglin 
 
 
@@ -137,7 +141,6 @@ sets_themes$pathString <- paste("legos",
 
 
 ```{r, echo = FALSE}
-
 # top 10 themes 
 top_themes <- sets_themes %>%
   count(theme_name) %>% 
@@ -149,11 +152,9 @@ top_10_themes <- left_join(top_themes,sets_themes, by="theme_name")
 
 large_sets <- top_10_themes %>%
   top_n(100, num_parts)
-
 ```
 
-```{r}
-
+```{r, include=FALSE}
 ## data tree structure! Neet!
 large_sets <- as.Node(large_sets) 
 print(large_sets, limit = 20)
@@ -164,14 +165,12 @@ print(large_sets, limit = 20)
     
 ## the best radial network 
     radialNetwork(large_sets_list)
-      
-      
 ```
 
 Once our data trees were created we could start graphing (yay!). At the center of the radial network is legos, from there the first set of nodes is the top ten lego themes by number of occurrences, and each the secondary set of nodes is the largest sets, limited to 100 for legability. Perusing through the network we can see that Star Wars is a popular theme with many large sets. 
 
 
-```{r, echo = FALSE} 
+```{r} 
 ##Keep this
 # Circlepacker package
 
@@ -179,48 +178,40 @@ the_themes <- sets_themes %>%
   count(theme_name) %>%
   top_n(5)
 
-
-
 sets_themes$pathString <- paste("legos", 
                             sets_themes$theme_name, 
                             sets_themes$set_name, 
                             sets_themes$num_parts,
                             sep = "/")
 
-
 top_5_themes <- left_join(the_themes,sets_themes, by="theme_name") %>% 
   top_n(100, num_parts)
 
 legos_circle <- as.Node(top_5_themes)
 
-
 # Make the plot
 
  circle_g <- circlepackeR(legos_circle, size = "num_parts", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = 1000, height = 800)
 
- circle_g
-
+circle_g
 ```
 
 The largest circle in this figure represents legos i.e the tree root , then the next set of circles is the top five themes within legos. Within each theme are the largest sets and clicking on an individual set’s circle you can see the number of parts within that set. This graph is limited to the hundred largest lego sets within those top five themes. With the circlepackeR and the networkD3 packages we found ourselves wanting to change some of the characteristics of the graphs such as font size and spacing and it was slightly infuriating that these were not adjustable within the packages. 
 
 
 ## The Millennium Falcon
-```{r millennium falcon image, echo=FALSE}
+```{r millennium falcon image, echo=FALSE, fig.align='center'}
 knitr::include_graphics(here("millenniumfalcon.png"))
 ```
 
-
+The 2017 Millennium Falcon lego set is the largest lego set to date, with 7,541 pieces. But what else can we learn about the Millennium Falcon set without paying the hefty $799.99 price tag? The set contains 377 different part types from 39 different part categories, made up of 24 different colors. There are 150 spare parts, and 26 translucent parts. The most common color with 3304 parts is “light bluish grey”, which makes up almost 44% of the set. The most common part is a Black Technic Pin with Friction Ridges Lengthwise and Center Slots (there are 269 of them) with dark tan 1 x 2 plates as the second most common part (with 243 of them). The circle graph that we made about the Millennium Falcon shows a more in-depth distribution of the colors that make up the set. The circles, from biggest to smallest, represent all parts, all parts of a specific color, the categories of parts of each color, the part name, and then the quantity of that specific part in that specific color. With this graph, you can figure out exactly how many Black Technic Pin with Friction Ridges Lengthwise and Center Slots are in the set without having to do a bunch of data wrangling. 
 
 ```{r milf circlepackR}
 #USC Millennium Falcon, 7541 parts, released 2017
 #set num = 75192-1
 
-inventories %>%
-  filter(set_num == "75192-1")
-
 millenium_falcon <- parts_inventory %>%
-  filter(inventory_id == 19670) %>% #inventory ID gotten from previous step
+  filter(inventory_id == 19670) %>% 
   left_join(colors, by="color_id") %>%
   left_join(parts, by="part_num") %>%
   left_join(parts_categories, by="part_cat_id") %>%
@@ -241,14 +232,9 @@ m <- circlepackeR(MILF, size = "quantity", width = 1000, height = 800)
 m
 ```
 
+The set can be configured to both old and new Star Wars styles, and can be piloted by either old or young Han Solo, depending on your preference. It contains 8 minifigures, including Princess Leia, Rey, and BB-8. Unfortunately, the set is currently out of stock on lego.com so we’ll need to find a different activity to keep us entertained during quarantine. 
 
-
-
-
-
-
-
-```{r minifigs}
+```{r minifigs, fig.align='center'}
 millennium_figs <- inventories %>%
   filter(inventory_id == 19670) %>%
   left_join(minifig_inventory, by="inventory_id") %>%
@@ -260,7 +246,7 @@ millennium_figs
 knitr::include_graphics(here("milf_minifigs.png"))
 ```
 
-```{r 2000 colors treemap}
+```{r 2000 colors treemap, echo=FALSE}
 #wrangling!
 bigcolors <- sets %>%
   filter(year == 2000) %>%
@@ -273,7 +259,11 @@ bigcolors <- sets %>%
   summarise(n=sum(quantity)) %>%
   arrange(desc(n)) %>%
   rename("color"="name.y", "n_parts"="n")
+```
 
+After looking in depth at the Millennium Falcon, we found ourselves wondering about what the most common colors in other lego sets are. And continuing with our “millennium” theme, we looked at lego sets that were released in the year 2000. The treemap package turned out to be frustrating to work with. There isn’t a lot of documentation, and any documentation hasn’t been updated since 2017. Ideally, the treemap would be colored by the color of the part represented, but we couldn’t figure out how to fix that. Either way, the figure shows that black and light grey were the most common colors used in 2000, with 8660 black pieces and 4962 light grey pieces. The treemap also doesn’t display the numbers, so we had to figure those out with some classic `dplyr` techniques. 
+
+```{r}
 #treemap
 treemap(bigcolors,
             index="color",
@@ -288,7 +278,7 @@ bigcolors %>%
 
 
 
-```{r mosaics}
+```{r mosaics, fig.align='center'}
 
 mosaic <- png::readPNG("iggy-izzy.png") %>% 
   image_to_mosaic(img_size = 80) 

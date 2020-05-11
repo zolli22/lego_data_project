@@ -19,6 +19,8 @@ library(rgl)
 library(circlepackeR)
 library(data.tree)
 library(treemap)
+
+rgl::setupKnitr()
 ```
 
 
@@ -56,7 +58,7 @@ inventories<- rename(inventories, "inventory_id"="id")
 ```
 
 
-```{r red brick}
+```{r red brick, rgl=TRUE, dev='png', warning=FALSE, message=FALSE, echo=FALSE, fig.align='center'}
 #This is a brick
 brick <- data.frame(
   Level="A",
